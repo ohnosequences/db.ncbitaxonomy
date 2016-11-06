@@ -1,0 +1,4 @@
+First release.
+
+- Taxonomy nodes only have ID, parent ID and rank
+- We are only working with scientific names
