@@ -4,14 +4,14 @@ scala:
 jdk:
 - oraclejdk8
 script:
-- sbt ++$TRAVIS_SCALA_VERSION compile
+- sbt ++$TRAVIS_SCALA_VERSION compile coverage test coverageReport codacyCoverage
 - find $HOME/.sbt -name "*.lock" | xargs rm
 - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 matrix:
   fast_finish: true
 notifications:
   email: false
-  webhooks: 
+  webhooks:
 sudo: false
 cache:
   directories:
