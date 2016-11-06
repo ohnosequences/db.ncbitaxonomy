@@ -4,14 +4,14 @@ scala:
 jdk:
 - oraclejdk8
 script:
-- sbt ++$TRAVIS_SCALA_VERSION compile # coverage test coverageReport codacyCoverage
+- sbt ++$TRAVIS_SCALA_VERSION compile
 - find $HOME/.sbt -name "*.lock" | xargs rm
 - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 matrix:
   fast_finish: true
 notifications:
   email: false
-  webhooks:
+  webhooks: 
 sudo: false
 cache:
   directories:
@@ -19,4 +19,7 @@ cache:
   - "$HOME/.sbt/boot/"
 branches:
   only:
-    - master
+  - master
+env:
+  global:
+    secure: prT5/TFWrymmfeYv/sTmfaHz4wrdtIc0FEKgKY2pmZgbxU2qzlG7R3JL+JUA0iMEcmC75+j39wGBdHDjLokKAkRcijxOWYS0talyFuDnj2qClWKE0wwkP1KWCpPumL2bj6ii+u7nnsu/E9H4GWvTgz9sMkdtisyDiXne4nzXt8FBnk5XFf4xPwZdVGSqnmpCMCcjYnsBYlgbkq8/lSlGsT7x7d6URQXIYalAR040xc2JxTJimGTYMnZ2QDy7z3SMxqWx3nwzbGbNj04l0IMG9bTDjgdqmfvLMwGHz1VmBuBz8kz01sSTemKUWJGCKIYL4bwqlA6uouco3/50MjUdelZyTgzWc8ReT8TSXVSNaYX7yMXId7/SyZs/DJUvlpev9w8PwGXCheDz0ZbdLcOlfMhv/r070h0Voxl1h3REpyHIDC8lokapRotc5saQ9Qigsuo/qxqk0cyHrKbOUnEPaKiMSnqxARyLyQKqA+h7VbJzgV794gT6j5sHY/Nvno2D9ntOcIreGLFLw6svNZxfmXw8chLdVM/mGLCg4CVq2qYXiye75StISVYXe6UlkGGRidRYLeSMeEvhZ9u7ecfbt2FvEaE9tx0jsTnoVcb6fEbLHzP/ZWxeIUnEnFfVY6QQf0hTZEP+d6DeTxywG/arc77zVA1Qw8vjPKEvRi1rBAo=
