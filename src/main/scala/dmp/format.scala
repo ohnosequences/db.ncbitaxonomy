@@ -4,15 +4,15 @@ import com.bio4j.data.ncbitaxonomy._
 
 case object row {
 
-  val fieldSeparator: String = "\t|\t"
-  val endOfRow: String = "\t|"
+  val fieldSeparator: Char = '|'
+  val endOfRow: String = "|"
 
   def fromLine(line: String): Array[String] =
     line
-      .stripSuffix(row.endOfRow)
-      .split(row.fieldSeparator)
+      .stripSuffix(endOfRow)
+      .split(fieldSeparator)
       .map(_.trim)
-      .toArray
+      .toArray[String]
 }
 
 case class Node(val fields: Array[String]) extends AnyVal with AnyNode {
@@ -41,10 +41,9 @@ case object nodes {
 case object names {
 
   def fromLines(lines: Iterator[String]): Iterator[ScientificName] =
-    lines.collect { case line if(row.fromLine(line)(3) == "scientific name") =>
-
-      val r = row.fromLine(line)
-
-      ScientificName(r(0), r(1))
-    }
+    lines
+      .collect { case line if(row.fromLine(line)(3) == "scientific name") =>
+        val r = row.fromLine(line)
+        ScientificName(r(0), r(1))
+      }
 }
