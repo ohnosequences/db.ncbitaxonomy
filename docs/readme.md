@@ -68,7 +68,7 @@ This file contains the names linked with a node via taxonomy ID. The file looks 
 
 The fields (in the order found on the file):
 
-- **ID** * the id of node associated with this name*
+- **ID** *the id of node associated with this name*
 - **name** *name itself*
 - **uniqueName** *the unique variant of this name if name not unique*
 - **nameType** *synonym, common name, ...*
