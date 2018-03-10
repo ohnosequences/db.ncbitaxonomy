@@ -35,6 +35,8 @@ We only care about `nodes.dmp` and `names.dmp`.
 
 ### `nodes.dmp`
 
+This file contains the tree structure (through parent ID at each row) and values linked with each node.
+
 The fields (in the order found on the file):
 
 - **ID** *node id in GenBank taxonomy database*
@@ -62,7 +64,41 @@ Sample rows:
 
 ### `names.dmp`
 
-...
+This file contains the names linked with a node via taxonomy ID. The file looks to be sorted by ID, and thus all names of a given node make a contiguous block.
+
+The fields (in the order found on the file):
+
+- **ID** * the id of node associated with this name*
+- **name** *name itself*
+- **uniqueName** *the unique variant of this name if name not unique*
+- **nameType** *synonym, common name, ...*
+
+Sample rows:
+
+```
+24      |       ATCC 8071       |               |       type material   |
+24      |       Alteromonas putrefaciens        |               |       synonym |
+24      |       Alteromonas putrefaciens (ex Derby and Hammer) Lee et al. 1981  |               |       authority       |
+24      |       Alteromonas putrifaciens        |               |       misspelling     |
+24      |       CCUG 13452 D    |               |       type material   |
+24      |       CFBP 3033       |               |       type material   |
+24      |       CFBP 3034       |               |       type material   |
+24      |       CIP 80.40       |               |       type material   |
+24      |       DSM 6067        |               |       type material   |
+24      |       IFO 3908        |               |       type material   |
+24      |       JCM 20190       |               |       type material   |
+24      |       JCM 9294        |               |       type material   |
+24      |       LMG 2268        |               |       type material   |
+24      |       NBRC 3908       |               |       type material   |
+24      |       NCIB 10471      |               |       type material   |
+24      |       NCIMB 10471     |               |       type material   |
+24      |       NCTC 12960      |               |       type material   |
+24      |       Pseudomonas putrefaciens        |               |       synonym |
+24      |       Shewanella putrefaciens |               |       scientific name |
+24      |       Shewanella putrefaciens (Lee et al. 1981) MacDonell and Colwell 1986    |               |       authority       |
+24      |       Shewanella putrifaciens |               |       misspelling     |
+24      |       strain Hammer 95        |               |       type material   |
+```
 
 [taxdump-readme]: ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump_readme.txt
 [taxdump-archive]: ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
