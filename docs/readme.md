@@ -46,11 +46,11 @@ The fields (in the order found on the file):
 - **divisionID** *see `division.dmp` file*
 - **inheritedDiv**  *(1 or 0) 1 if node inherits division from parent*
 - **geneticCodeID** *see `gencode.dmp` file*
-- **inheritedGeneticCode *(1 or 0) *1 if node inherits genetic code from parent*
+- **inheritedGeneticCode** *(1 or 0) 1 if node inherits genetic code from parent*
 - **mitochondrialGeneticCodeID** *see `gencode.dmp` file*
 - **inheritedMitochondrialGeneticCode** *(1 or 0) 1 if node inherits mitochondrial gencode from parent*
 - **GenBankHidden** *(1 or 0) 1 if name is suppressed in GenBank entry lineage*
-- **hiddenSubtreeRoot** *(1 or 0) *1 if this subtree has no sequence data yet*
+- **hiddenSubtreeRoot** *(1 or 0) 1 if this subtree has no sequence data yet*
 - **comments** *free-text comments and citations*
 
 Sample rows:
