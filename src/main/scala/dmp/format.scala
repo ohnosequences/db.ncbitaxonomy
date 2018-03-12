@@ -5,7 +5,7 @@ import com.bio4j.data.ncbitaxonomy._
 case object row {
 
   val fieldSeparator: Char = '|'
-  val endOfRow: String = "|"
+  val endOfRow: String     = "|"
 
   def fromLine(line: String): Array[String] =
     line
@@ -42,8 +42,9 @@ case object names {
 
   def fromLines(lines: Iterator[String]): Iterator[ScientificName] =
     lines
-      .collect { case line if(row.fromLine(line)(3) == "scientific name") =>
-        val r = row.fromLine(line)
-        ScientificName(r(0), r(1))
+      .collect {
+        case line if (row.fromLine(line)(3) == "scientific name") =>
+          val r = row.fromLine(line)
+          ScientificName(r(0), r(1))
       }
 }

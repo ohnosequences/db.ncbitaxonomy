@@ -7,8 +7,8 @@ resolvers ++= Seq(
 
 addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.15")
 
-addSbtPlugin("ohnosequences" % "nice-sbt-settings" % "0.8.0-RC4")
+addSbtPlugin("ohnosequences" % "nice-sbt-settings" % "0.9.0")
 // test coverage
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.4.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.5.1")
 // codacy
-addSbtPlugin("com.codacy" % "sbt-codacy-coverage" % "1.3.4")
+addSbtPlugin("com.codacy" % "sbt-codacy-coverage" % "1.3.11")

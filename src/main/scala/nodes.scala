@@ -1,6 +1,5 @@
 package com.bio4j.data.ncbitaxonomy
 
-
 trait AnyNode extends Any {
 
   def ID: String
