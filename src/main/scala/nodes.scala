@@ -13,4 +13,6 @@ sealed trait AnyNodeName {
   def nodeID: String
   def name: String
 }
-case class ScientificName(nodeID: String, name: String) extends AnyNodeName
+
+final case class ScientificName(nodeID: String, name: String)
+    extends AnyNodeName

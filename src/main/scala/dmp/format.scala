@@ -15,7 +15,7 @@ case object row {
       .toArray[String]
 }
 
-case class Node(val fields: Array[String]) extends AnyVal with AnyNode {
+class Node(val fields: Array[String]) extends AnyNode {
 
   def ID: String =
     fields(0)
@@ -30,7 +30,7 @@ case class Node(val fields: Array[String]) extends AnyVal with AnyNode {
 case object Node {
 
   def from(line: String): Node =
-    Node(row.fromLine(line))
+    new Node(row.fromLine(line))
 }
 
 case object nodes {

@@ -1,7 +1,7 @@
 package com.bio4j.data.ncbitaxonomy.test
 
 import org.scalatest.FunSuite
-import com.bio4j.data.ncbitaxonomy._, dmp._
+import com.bio4j.data.ncbitaxonomy._
 
 class ParseNodes extends FunSuite {
 
@@ -25,15 +25,15 @@ class ParseNodes extends FunSuite {
     val lastNode  = nodes.last
 
     assert {
-      (firstNode.ID === "318"         ) &&
-      (firstNode.parentID === "29438" ) &&
-      (firstNode.rank === "no rank"   )
+      (firstNode.ID === "318") &&
+      (firstNode.parentID === "29438") &&
+      (firstNode.rank === "no rank")
     }
 
     assert {
-      (lastNode.ID === "330"           ) &&
-      (lastNode.parentID === "1232139" ) &&
-      (lastNode.rank === "species"     )
+      (lastNode.ID === "330") &&
+      (lastNode.parentID === "1232139") &&
+      (lastNode.rank === "species")
     }
   }
 }
