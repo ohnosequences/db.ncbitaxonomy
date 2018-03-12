@@ -1,7 +1,7 @@
 package com.bio4j.data.ncbitaxonomy.test
 
 import org.scalatest.FunSuite
-import com.bio4j.data.ncbitaxonomy._, dmp._
+import com.bio4j.data.ncbitaxonomy._
 
 class ParseNames extends FunSuite {
 
@@ -25,7 +25,6 @@ class ParseNames extends FunSuite {
       """245     |       Flavobacterium aquatilis        |               |       synonym |""",
       """245     |       IFO 15052       |               |       type material   |""",
       """245     |       JCM 20475       |               |       type material   |"""
-
     )
 
   test("only scientific names are parsed") {
