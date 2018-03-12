@@ -1,6 +1,7 @@
 package com.bio4j.data.ncbitaxonomy.test
 
 import org.scalatest.FunSuite
+import org.scalatest.OptionValues.convertOptionToValuable
 import com.bio4j.data.ncbitaxonomy._
 
 class ParseNodes extends FunSuite {
@@ -21,8 +22,8 @@ class ParseNodes extends FunSuite {
     val nodes =
       dmp.nodes.fromLines(nodeLines.toIterator).toSeq
 
-    val firstNode = nodes.head
-    val lastNode  = nodes.last
+    val firstNode = nodes.headOption.value
+    val lastNode  = nodes.lastOption.value
 
     assert {
       (firstNode.ID === "318") &&

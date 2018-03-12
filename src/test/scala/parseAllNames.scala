@@ -13,6 +13,12 @@ class ParseAllNames extends FunSuite {
     dmp.names.fromLines(namesLines) foreach { n =>
       val id   = n.nodeID
       val name = n.name
+
+      // We just want to check whether we can access the values but sbt
+      // complaints about the values above being unused, so trick sbt into
+      // thinkink we are using them.
+      // TODO: Code a proper test instead of this silly trick.
+      id + name
     }
   }
 }
