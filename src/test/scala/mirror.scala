@@ -13,7 +13,7 @@ import java.io.File
 
 class Mirror extends FunSuite {
   test("Mirror data from NCBI FTP into ohnosequences S3", ReleaseOnlyTest) {
-    val directory = new File("/opt/data/")
+    val directory = new File("./ncbi-data/")
 
     val localFile = directory.toPath.resolve("taxdump.tar.gz").toFile
     val namesFile = directory.toPath.resolve("names.dmp").toFile

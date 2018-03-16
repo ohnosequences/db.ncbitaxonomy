@@ -17,3 +17,6 @@ project/target/
 .idea*
 .vscode*
 /.gtm/
+
+# Test data
+ncbi-data/
