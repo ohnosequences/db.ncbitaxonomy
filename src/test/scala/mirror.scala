@@ -2,6 +2,7 @@ package ohnosequences.db.ncbitaxonomy.test
 
 import ohnosequences.db.ncbitaxonomy.{names, nodes, sourceFile}
 import ohnosequences.db.ncbitaxonomy.test.utils.{
+  createDirectory,
   downloadFrom,
   uncompressAndExtractTo,
   uploadTo
@@ -18,6 +19,9 @@ class Mirror extends FunSuite {
     val localFile = directory.toPath.resolve("taxdump.tar.gz").toFile
     val namesFile = directory.toPath.resolve("names.dmp").toFile
     val nodesFile = directory.toPath.resolve("nodes.dmp").toFile
+
+    // Create the relative directory ./data
+    createDirectoryOrFail(directory)
 
     // Retrieve original archived, compressed file from NCBI FTP
     downloadFromOrFail(sourceFile, localFile)
@@ -48,5 +52,10 @@ class Mirror extends FunSuite {
   def uploadToOrFail(file: File, s3Object: S3Object) =
     getOrFail(s"Error uploading $file to $s3Object") {
       uploadTo(file, s3Object)
+    }
+
+  def createDirectoryOrFail(directory: File) =
+    getOrFail(s"Error creating directory $directory.") {
+      createDirectory(directory)
     }
 }

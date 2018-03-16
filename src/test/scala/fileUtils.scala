@@ -55,4 +55,16 @@ case object utils {
       case scala.util.Success(s) => Some(s3Object)
       case scala.util.Failure(e) => None
     }
+
+  /**
+    * Returns `Some(directory)` if it was possible to create all directories in `directory` (or if they already existed); `None` otherwise.
+    */
+  def createDirectory(directory: File): Option[File] =
+    if (!directory.exists)
+      if (directory.mkdirs())
+        Some(directory)
+      else
+        None
+    else
+      Some(directory)
 }
