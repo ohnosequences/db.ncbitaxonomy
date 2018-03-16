@@ -4,6 +4,9 @@ import ohnosequences.awstools.s3._ // S3{Folder,Object} and s3"" string creation
 
 package object ncbitaxonomy {
 
+  private[ncbitaxonomy] type +[A, B] =
+    Either[A, B]
+
   val sourceFile: java.net.URI =
     new java.net.URI("ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz")
 

@@ -1,5 +1,6 @@
 package ohnosequences.db.ncbitaxonomy.test
 
+import ohnosequences.db.ncbitaxonomy.+
 import ohnosequences.db.ncbitaxonomy.{names, nodes, sourceFile}
 import ohnosequences.db.ncbitaxonomy.test.utils.{
   createDirectory,
@@ -34,28 +35,29 @@ class Mirror extends FunSuite {
     uploadToOrFail(nodesFile, nodes)
   }
 
-  def getOrFail[X](msg: String): Option[X] => X =
-    _.fold(fail(msg)) { x =>
-      x
+  def getOrFail[E <: Error, X]: E + X => X =
+    _ match {
+      case Right(x) => x
+      case Left(e)  => fail(e.msg)
     }
 
   def downloadFromOrFail(uri: java.net.URI, file: File) =
-    getOrFail(s"Error downloading $uri to $file") {
+    getOrFail {
       downloadFrom(uri, file)
     }
 
   def uncompressAndExtractToOrFail(input: File, outputDir: File) =
-    getOrFail(s"Error extracting $input into directory $outputDir") {
+    getOrFail {
       uncompressAndExtractTo(input, outputDir)
     }
 
   def uploadToOrFail(file: File, s3Object: S3Object) =
-    getOrFail(s"Error uploading $file to $s3Object") {
+    getOrFail {
       uploadTo(file, s3Object)
     }
 
   def createDirectoryOrFail(directory: File) =
-    getOrFail(s"Error creating directory $directory.") {
+    getOrFail {
       createDirectory(directory)
     }
 }
