@@ -4,7 +4,7 @@ Mirror of NCBI Taxonomy data. The mirrored files are at
 
 ```
 s3://resources.ohnosequences.com/db/ncbitaxonomy/<version>/names.dmp
-s3://resources.ohnosequences.com/db/ncbitaxonomy/<version>/names.dmp
+s3://resources.ohnosequences.com/db/ncbitaxonomy/<version>/nodes.dmp
 ```
 
 where `<version>` match one of the [releases of this repository][db.ncbitaxonomy-releases].
