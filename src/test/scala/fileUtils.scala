@@ -19,8 +19,8 @@ case object Error {
 case object utils {
 
   /**
-    * Returns `Some(file)` if the download from `uri` to `file`
-    * succeeded, `None` otherwise.
+    * Returns `Right(file)` if the download from `uri` to `file`
+    * succeeded, `Left(Error.Download(msg))` otherwise.
     */
   def downloadFrom(uri: java.net.URI, file: File): Error.Download + File = {
     val command = s"wget ${uri.toString} -O ${file.getCanonicalPath}"
@@ -33,15 +33,17 @@ case object utils {
   }
 
   /**
-    * Returns `Some(outputDir)` if the extraction from `input` into `outputDir`
-    * succeeded, `None` otherwise.
+    * Returns `Right(outputDir)` if the extraction from `input` into `outputDir`
+    * succeeded, ``Left(Error.Extract(msg))`` otherwise.
     */
   def uncompressAndExtractTo(input: File,
                              outputDir: File): Error.Extract + File =
     if (!outputDir.isDirectory)
       Left(
         Error.Extract(
-          s"Error extracting $input into directory $outputDir: $outputDir is not a directory.")
+          s"Error extracting $input into directory $outputDir: " +
+            s"$outputDir is not a directory."
+        )
       )
     else {
       val command =
@@ -55,13 +57,15 @@ case object utils {
       else
         Left(
           Error.Extract(
-            s"Error extracting $input into directory $outputDir: the command finished with errors.")
+            s"Error extracting $input into directory $outputDir: " +
+              s"the command finished with errors."
+          )
         )
     }
 
   /**
-    * Returns `Some(s3Object)` if the upload from `file` to `s3Object`
-    * succeeded, `None` otherwise.
+    * Returns `Right(s3Object)` if the upload from `file` to `s3Object`
+    * succeeded, ``Left(Error.Upload(msg))`` otherwise.
     */
   def uploadTo(file: File, s3Object: S3Object): Error.Upload + S3Object =
     scala.util.Try {
@@ -78,7 +82,9 @@ case object utils {
     }
 
   /**
-    * Returns `Some(directory)` if it was possible to create all directories in `directory` (or if they already existed); `None` otherwise.
+    * Returns `Right(directory)` if it was possible to create all directories
+    * in `directory` (or if they already existed);
+    * `Left(Error.DirCreation(msg))` otherwise.
     */
   def createDirectory(directory: File): Error.DirCreation + File =
     if (!directory.exists)

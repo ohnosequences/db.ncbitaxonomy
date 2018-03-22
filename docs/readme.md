@@ -1,5 +1,14 @@
 # NCBI Taxonomy
 
+Mirror of NCBI Taxonomy data. The mirrored files are at
+
+```
+s3://resources.ohnosequences.com/db/ncbitaxonomy/<version>/names.dmp
+s3://resources.ohnosequences.com/db/ncbitaxonomy/<version>/names.dmp
+```
+
+where `<version>` match one of the [releases of this repository][db.ncbitaxonomy-releases].
+
 ## Data Source
 
 All input data is under `ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/`. We are mostly interested in `taxdump*` files, for which there's a [readme][taxdump-readme]. We need to get the contents of [taxdump.tar.gz][taxdump-archive]; after extracing we should see
@@ -100,5 +109,16 @@ Sample rows:
 24      |       strain Hammer 95        |               |       type material   |
 ```
 
+## Data Versioning
+
+The data source from NCBI FTP (see [Data Source](#data-source)) has no versions as far as we know ---in their [website][website-guide], they affirm that "New taxa are added to the Taxonomy database as data are deposited for them"---.
+
+However, this mirror will be versioned, storing the date of creation of each version as a metadata of the release. Further checks of each version will be done when needed (e.g., see [db.rna16s.assignments/#1][db.rna16s.assignments-issue-1].
+
+The files on each release of this repo are consistent (i.e., the files `nodes.dmp` and `names.dmp` refer to the same information); as the source data is extracted from one single archived file (and we assume the archived files released by NCBI are self-consistent).
+
 [taxdump-readme]: ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump_readme.txt
 [taxdump-archive]: ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz
+[website-guide]: https://www.ncbi.nlm.nih.gov/guide/taxonomy/
+[db.rna16s.assignments-issue-1]: https://github.com/ohnosequences/db.rna16s.assignments/issues/1
+[db.ncbitaxonomy-releases]: https://github.com/ohnosequences/db.ncbitaxonomy/releases

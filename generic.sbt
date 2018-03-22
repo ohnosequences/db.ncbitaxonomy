@@ -56,3 +56,13 @@ bucketSuffix := "era7.com"
 ////////////////////////////////////////////////////////////////////////////////
 
 // overriding!
+
+// sbt-build-info stuff; basically used to generate build time value
+lazy val root = (project in file(".")).
+  enablePlugins(BuildInfoPlugin).
+  settings(
+    buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion),
+    buildInfoPackage := "db.ncbitaxonomy"
+  )
+
+buildInfoOptions += BuildInfoOption.BuildTime
