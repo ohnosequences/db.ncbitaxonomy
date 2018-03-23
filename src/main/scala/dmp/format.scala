@@ -1,6 +1,6 @@
-package com.bio4j.data.ncbitaxonomy.dmp
+package ohnosequences.api.ncbitaxonomy.dmp
 
-import com.bio4j.data.ncbitaxonomy._
+import ohnosequences.api.ncbitaxonomy._
 
 case object row {
 

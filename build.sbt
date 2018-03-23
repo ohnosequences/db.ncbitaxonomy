@@ -1,3 +1,3 @@
-name := "data.ncbitaxonomy"
-organization := "bio4j"
+name := "api.ncbitaxonomy"
+organization := "ohnosequences"
 description := "NCBI taxonomy ADT and column-based file parsers"

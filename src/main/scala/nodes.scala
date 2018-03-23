@@ -1,4 +1,4 @@
-package com.bio4j.data.ncbitaxonomy
+package ohnosequences.api.ncbitaxonomy
 
 trait AnyNode extends Any {
 

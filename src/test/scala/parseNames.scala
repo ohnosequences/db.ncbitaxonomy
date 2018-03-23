@@ -1,7 +1,7 @@
-package com.bio4j.data.ncbitaxonomy.test
+package ohnosequences.api.ncbitaxonomy.test
 
 import org.scalatest.FunSuite
-import com.bio4j.data.ncbitaxonomy._
+import ohnosequences.api.ncbitaxonomy._
 
 class ParseNames extends FunSuite {
 
