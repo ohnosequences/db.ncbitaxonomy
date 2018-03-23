@@ -4,6 +4,7 @@ import org.scalatest.FunSuite
 import ohnosequences.api.ncbitaxonomy._
 import ohnosequences.db
 import ohnosequences.api.ncbitaxonomy.test.utils._
+import ohnosequences.test.ReleaseOnlyTest
 
 class ParseAllNames extends FunSuite {
 
@@ -20,7 +21,7 @@ class ParseAllNames extends FunSuite {
     }
   }
 
-  test("parse all names and access all data") {
+  test("parse all names and access all data", ReleaseOnlyTest) {
 
     dmp.names.fromLines(getNamesLines) foreach { n =>
       val id   = n.nodeID
