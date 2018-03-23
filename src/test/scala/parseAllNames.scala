@@ -2,15 +2,27 @@ package ohnosequences.api.ncbitaxonomy.test
 
 import org.scalatest.FunSuite
 import ohnosequences.api.ncbitaxonomy._
+import ohnosequences.db
+import ohnosequences.api.ncbitaxonomy.test.utils._
 
 class ParseAllNames extends FunSuite {
 
-  def namesLines =
-    io.Source.fromFile("names.dmp").getLines
+  def getNamesLines = {
+    if (!data.namesLocalFile.exists)
+      downloadFrom(db.ncbitaxonomy.names, data.namesLocalFile).left
+        .map { e =>
+          fail(e.msg)
+        }
+
+    retrieveLinesFrom(data.namesLocalFile) match {
+      case Right(x) => x
+      case Left(e)  => fail(e.msg)
+    }
+  }
 
   test("parse all names and access all data") {
 
-    dmp.names.fromLines(namesLines) foreach { n =>
+    dmp.names.fromLines(getNamesLines) foreach { n =>
       val id   = n.nodeID
       val name = n.name
 
