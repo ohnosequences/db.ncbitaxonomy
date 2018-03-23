@@ -9,7 +9,7 @@ import ohnosequences.db.ncbitaxonomy.test.utils.{
   uploadTo
 }
 import ohnosequences.test.ReleaseOnlyTest
-import ohnosequences.awstools.s3.S3Object
+import ohnosequences.awstools.s3, s3.{S3Object, ScalaS3Client}
 import org.scalatest.FunSuite
 import java.io.File
 
@@ -30,9 +30,23 @@ class Mirror extends FunSuite {
     // Uncompress and extract the archive file to get names.dmp and nodes.dmp
     uncompressAndExtractToOrFail(localFile, directory)
 
-    // Upload nodes.dmp and names.dmp to their respective S3 locations
-    uploadToOrFail(namesFile, names)
-    uploadToOrFail(nodesFile, nodes)
+    val s3Client = ScalaS3Client(s3.defaultClient)
+
+    // Upload nodes.dmp and names.dmp to their respective S3 locations,
+    // only if those objects do not exist.
+    // FIXME: Check that the local files and the files in S3 are exactly the
+    // same, through a hash (provided by S3 or manually computed from here).
+    if (!s3Client.objectExists(names)) {
+      println(s"Uploading $names to $namesFile.")
+      uploadToOrFail(namesFile, names)
+    } else
+      println(s"S3 object $names exists; skipping upload")
+
+    if (!s3Client.objectExists(nodes)) {
+      println(s"Uploading $nodes to $nodesFile.")
+      uploadToOrFail(nodesFile, nodes)
+    } else
+      println(s"S3 object $nodes exists; skipping upload")
   }
 
   def getOrFail[E <: Error, X]: E + X => X =
