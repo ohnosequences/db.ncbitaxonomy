@@ -1,6 +1,10 @@
 language: scala
 scala:
+<<<<<<< HEAD
 - 2.12.4
+=======
+  - 2.12.6
+>>>>>>> buildconf/master
 jdk:
 - oraclejdk8
 script:
