@@ -44,13 +44,13 @@ class Mirror extends FunSuite {
     // FIXME: Check that the local files and the files in S3 are exactly the
     // same, through a hash (provided by S3 or manually computed from here).
     if (!s3Client.objectExists(namesObj)) {
-      println(s"Uploading $namesObj to $namesFile.")
+      println(s"Uploading $namesFile to $namesObj")
       uploadToOrFail(namesFile, namesObj)
     } else
       println(s"S3 object $namesObj exists; skipping upload")
 
     if (!s3Client.objectExists(nodesObj)) {
-      println(s"Uploading $nodesObj to $nodesFile.")
+      println(s"Uploading $nodesFile to $nodesObj")
       uploadToOrFail(nodesFile, nodesObj)
     } else
       println(s"S3 object $nodesObj exists; skipping upload")
