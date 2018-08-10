@@ -5,9 +5,9 @@ import java.io.File
 
 object data {
 
-  lazy val namesLocalFile =
-    new File(s"./data/in/${db.ncbitaxonomy.version}/names.dmp")
+  def namesLocalFile(dbVersion: db.ncbitaxonomy.Version) =
+    new File(s"./data/in/${dbVersion}/names.dmp")
 
-  lazy val nodesLocalFile =
-    new File(s"./data/in/${db.ncbitaxonomy.version}/nodes.dmp")
+  def nodesLocalFile(dbVersion: db.ncbitaxonomy.Version) =
+    new File(s"./data/in/${dbVersion}/nodes.dmp")
 }

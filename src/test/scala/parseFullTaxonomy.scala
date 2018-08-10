@@ -27,35 +27,42 @@ class ParseFullTaxonomy extends FunSuite {
     }
   }
 
-  def getNamesLines = getLines(db.ncbitaxonomy.names, data.namesLocalFile)
-  def getNodesLines = getLines(db.ncbitaxonomy.nodes, data.nodesLocalFile)
+  def getNamesLines(version: DBVersion) =
+    getLines(db.ncbitaxonomy.names(version), data.namesLocalFile(version))
+  def getNodesLines(version: DBVersion) =
+    getLines(db.ncbitaxonomy.nodes(version), data.nodesLocalFile(version))
 
   test("Parse all names and access all data", ReleaseOnlyTest) {
 
-    dmp.names.fromLines(getNamesLines) foreach { n =>
-      val id   = n.nodeID
-      val name = n.name
+    dbVersions foreach { version =>
+      dmp.names.fromLines(getNamesLines(version)) foreach { n =>
+        val id   = n.nodeID
+        val name = n.name
 
-      // We just want to check whether we can access the values but sbt
-      // complaints about the values above being unused, so trick sbt into
-      // thinkink we are using them.
-      // TODO: Code a proper test instead of this silly trick.
-      id + name
+        // We just want to check whether we can access the values but sbt
+        // complaints about the values above being unused, so trick sbt into
+        // thinkink we are using them.
+        // TODO: Code a proper test instead of this silly trick.
+        id + name
+      }
     }
+
   }
 
   test("Parse all nodes and access all data", ReleaseOnlyTest) {
 
-    dmp.nodes.fromLines(getNodesLines) foreach { node =>
-      val id     = node.ID
-      val parent = node.parentID
-      val rank   = node.rank
+    dbVersions foreach { version =>
+      dmp.nodes.fromLines(getNodesLines(version)) foreach { node =>
+        val id     = node.ID
+        val parent = node.parentID
+        val rank   = node.rank
 
-      // We just want to check whether we can access the values but sbt
-      // complaints about the values above being unused, so trick sbt into
-      // thinkink we are using them.
-      // TODO: Code a proper test instead of this silly trick.
-      id + parent + rank
+        // We just want to check whether we can access the values but sbt
+        // complaints about the values above being unused, so trick sbt into
+        // thinkink we are using them.
+        // TODO: Code a proper test instead of this silly trick.
+        id + parent + rank
+      }
     }
   }
 }
