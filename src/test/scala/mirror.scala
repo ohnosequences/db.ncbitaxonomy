@@ -1,7 +1,7 @@
 package ohnosequences.db.ncbitaxonomy.test
 
 import ohnosequences.db.ncbitaxonomy.+
-import ohnosequences.db.ncbitaxonomy.{names, nodes, sourceFile}
+import ohnosequences.db.ncbitaxonomy.{Version, names, nodes, sourceFile}
 import ohnosequences.db.ncbitaxonomy.test.utils.{
   createDirectory,
   downloadFrom,
@@ -14,14 +14,18 @@ import org.scalatest.FunSuite
 import java.io.File
 
 class Mirror extends FunSuite {
+
   test("Mirror data from NCBI FTP into ohnosequences S3", ReleaseOnlyTest) {
-    val directory = new File("./ncbi-data/")
+
+    val version = Version.latest
+
+    val directory = new File(s"./ncbi-data/${version.name}")
 
     val localFile = directory.toPath.resolve("taxdump.tar.gz").toFile
     val namesFile = directory.toPath.resolve("names.dmp").toFile
     val nodesFile = directory.toPath.resolve("nodes.dmp").toFile
 
-    // Create the relative directory ./data
+    // Create the relative directory
     createDirectoryOrFail(directory)
 
     // Retrieve original archived, compressed file from NCBI FTP
@@ -32,21 +36,24 @@ class Mirror extends FunSuite {
 
     val s3Client = ScalaS3Client(s3.defaultClient)
 
+    val namesObj = names(version)
+    val nodesObj = nodes(version)
+
     // Upload nodes.dmp and names.dmp to their respective S3 locations,
     // only if those objects do not exist.
     // FIXME: Check that the local files and the files in S3 are exactly the
     // same, through a hash (provided by S3 or manually computed from here).
-    if (!s3Client.objectExists(names)) {
-      println(s"Uploading $names to $namesFile.")
-      uploadToOrFail(namesFile, names)
+    if (!s3Client.objectExists(namesObj)) {
+      println(s"Uploading $namesObj to $namesFile.")
+      uploadToOrFail(namesFile, namesObj)
     } else
-      println(s"S3 object $names exists; skipping upload")
+      println(s"S3 object $namesObj exists; skipping upload")
 
-    if (!s3Client.objectExists(nodes)) {
-      println(s"Uploading $nodes to $nodesFile.")
-      uploadToOrFail(nodesFile, nodes)
+    if (!s3Client.objectExists(nodesObj)) {
+      println(s"Uploading $nodesObj to $nodesFile.")
+      uploadToOrFail(nodesFile, nodesObj)
     } else
-      println(s"S3 object $nodes exists; skipping upload")
+      println(s"S3 object $nodesObj exists; skipping upload")
   }
 
   def getOrFail[E <: Error, X]: E + X => X =
