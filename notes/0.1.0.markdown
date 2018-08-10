@@ -1,0 +1,5 @@
+# 0.1.0
+
+## Changes
+
+We know keep track of older versions as instances of `Version`. The S3 addresses are now functions of `Version`, so that the files of old versions are easily accessible.
