@@ -13,13 +13,11 @@ package object ncbitaxonomy {
   sealed abstract class Version { def name: String }
   case object Version {
 
-    val latest: Version = _0_0_1
+    val latest: Version = _0_1_0
 
     case object _0_0_1 extends Version { val name = "0.0.1" }
+    case object _0_1_0 extends Version { val name = "0.1.0" }
   }
-
-  val version: String =
-    "0.0.1"
 
   def s3Prefix(version: Version): S3Folder =
     s3"resources.ohnosequences.com" /
