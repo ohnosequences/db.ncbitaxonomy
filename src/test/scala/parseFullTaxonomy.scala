@@ -3,7 +3,7 @@ package ohnosequences.api.ncbitaxonomy.test
 import org.scalatest.FunSuite
 import ohnosequences.api.ncbitaxonomy._
 import ohnosequences.db
-import ohnosequences.api.ncbitaxonomy.test.utils._
+import ohnosequences.db.ncbitaxonomy.test.utils._
 import ohnosequences.test.ReleaseOnlyTest
 import ohnosequences.awstools.s3.S3Object
 import java.io.File

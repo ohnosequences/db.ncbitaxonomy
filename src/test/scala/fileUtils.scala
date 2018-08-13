@@ -10,10 +10,11 @@ sealed trait Error {
 }
 
 case object Error {
-  final case class Download(val msg: String)    extends Error
-  final case class Upload(val msg: String)      extends Error
-  final case class Extract(val msg: String)     extends Error
-  final case class DirCreation(val msg: String) extends Error
+  final case class Download(val msg: String)     extends Error
+  final case class Upload(val msg: String)       extends Error
+  final case class Extract(val msg: String)      extends Error
+  final case class DirCreation(val msg: String)  extends Error
+  final case class FileNotFound(val msg: String) extends Error
 }
 
 case object utils {
