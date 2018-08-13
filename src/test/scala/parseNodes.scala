@@ -1,8 +1,8 @@
-package ohnosequences.api.ncbitaxonomy.test
+package ohnosequences.db.ncbitaxonomy.test
 
 import org.scalatest.FunSuite
 import org.scalatest.OptionValues.convertOptionToValuable
-import ohnosequences.api.ncbitaxonomy._
+import ohnosequences.db.ncbitaxonomy._
 
 class ParseNodes extends FunSuite {
 

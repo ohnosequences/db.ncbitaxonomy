@@ -3,6 +3,7 @@ package ohnosequences.db.ncbitaxonomy.test
 import ohnosequences.db.ncbitaxonomy.+
 import sys.process._ // System process execution: !
 import ohnosequences.awstools.s3, s3.S3Object
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder
 import java.io.File
 
 sealed trait Error {
@@ -31,6 +32,30 @@ case object utils {
       Right(file)
     else
       Left(Error.Download(s"Error downloading $uri to $file."))
+  }
+
+  /**
+    * Returns `Right(file)` if the download from `s3Object` to `file`
+    * succeeded, `Left(Error.Download(msg))` otherwise.
+    */
+  def downloadFromS3(s3Object: S3Object, file: File): Error.Download + File = {
+    println(s"Downloading $s3Object to $file.")
+    val tm = TransferManagerBuilder
+      .standard()
+      .withS3Client(s3.defaultClient)
+      .build()
+
+    scala.util.Try {
+      tm.download(
+          s3Object.bucket,
+          s3Object.key,
+          file
+        )
+        .waitForCompletion()
+    } match {
+      case scala.util.Success(s) => Right(file)
+      case scala.util.Failure(e) => Left(Error.Download(e.toString))
+    }
   }
 
   /**

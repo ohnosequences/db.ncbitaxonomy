@@ -1,4 +1,4 @@
-package ohnosequences.api.ncbitaxonomy.test
+package ohnosequences.db.ncbitaxonomy.test
 
 import ohnosequences.db
 import java.io.File

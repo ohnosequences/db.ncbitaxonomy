@@ -1,7 +1,7 @@
-package ohnosequences.api.ncbitaxonomy.test
+package ohnosequences.db.ncbitaxonomy.test
 
 import org.scalatest.FunSuite
-import ohnosequences.api.ncbitaxonomy._
+import ohnosequences.db.ncbitaxonomy._
 import ohnosequences.db
 import ohnosequences.db.ncbitaxonomy.test.utils._
 import ohnosequences.test.ReleaseOnlyTest
@@ -16,7 +16,7 @@ class ParseFullTaxonomy extends FunSuite {
     */
   def getLines(s3Object: S3Object, file: File): Iterator[String] = {
     if (!file.exists)
-      downloadFrom(s3Object, file).left
+      downloadFromS3(s3Object, file).left
         .map { e =>
           fail(e.msg)
         }
@@ -27,14 +27,14 @@ class ParseFullTaxonomy extends FunSuite {
     }
   }
 
-  def getNamesLines(version: DBVersion) =
+  def getNamesLines(version: Version) =
     getLines(db.ncbitaxonomy.names(version), data.namesLocalFile(version))
-  def getNodesLines(version: DBVersion) =
+  def getNodesLines(version: Version) =
     getLines(db.ncbitaxonomy.nodes(version), data.nodesLocalFile(version))
 
   test("Parse all names and access all data", ReleaseOnlyTest) {
 
-    dbVersions foreach { version =>
+    Version.all foreach { version =>
       dmp.names.fromLines(getNamesLines(version)) foreach { n =>
         val id   = n.nodeID
         val name = n.name
@@ -51,7 +51,7 @@ class ParseFullTaxonomy extends FunSuite {
 
   test("Parse all nodes and access all data", ReleaseOnlyTest) {
 
-    dbVersions foreach { version =>
+    Version.all foreach { version =>
       dmp.nodes.fromLines(getNodesLines(version)) foreach { node =>
         val id     = node.ID
         val parent = node.parentID

@@ -1,6 +1,6 @@
-package ohnosequences.api.ncbitaxonomy.dmp
+package ohnosequences.db.ncbitaxonomy.dmp
 
-import ohnosequences.api.ncbitaxonomy._
+import ohnosequences.db.ncbitaxonomy._
 
 case object row {
 

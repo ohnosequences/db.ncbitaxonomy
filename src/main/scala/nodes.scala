@@ -1,4 +1,4 @@
-package ohnosequences.api.ncbitaxonomy
+package ohnosequences.db.ncbitaxonomy
 
 trait AnyNode extends Any {
 
