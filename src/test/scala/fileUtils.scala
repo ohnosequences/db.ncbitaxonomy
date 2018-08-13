@@ -1,24 +1,40 @@
+<<<<<<< HEAD
 package ohnosequences.db.ncbitaxonomy.test
 
 import ohnosequences.db.ncbitaxonomy.+
 import sys.process._ // System process execution: !
 import ohnosequences.awstools.s3, s3.S3Object
 import java.io.File
+=======
+package ohnosequences.api.ncbitaxonomy.test
+
+import ohnosequences.api.ncbitaxonomy.+
+import ohnosequences.awstools.s3, s3.S3Object
+import java.io.File
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder
+>>>>>>> tmp/master
 
 sealed trait Error {
   val msg: String
 }
 
 case object Error {
+<<<<<<< HEAD
   final case class Download(val msg: String)    extends Error
   final case class Upload(val msg: String)      extends Error
   final case class Extract(val msg: String)     extends Error
   final case class DirCreation(val msg: String) extends Error
+=======
+  final case class Download(val msg: String)     extends Error
+  final case class DirCreation(val msg: String)  extends Error
+  final case class FileNotFound(val msg: String) extends Error
+>>>>>>> tmp/master
 }
 
 case object utils {
 
   /**
+<<<<<<< HEAD
     * Returns `Right(file)` if the download from `uri` to `file`
     * succeeded, `Left(Error.Download(msg))` otherwise.
     */
@@ -80,6 +96,30 @@ case object utils {
       case scala.util.Failure(e) =>
         Left(Error.Upload(s"Error uploading$file to $s3Object: ${e.toString}."))
     }
+=======
+    * Returns `Right(file)` if the download from `s3Object` to `file`
+    * succeeded, `Left(Error.Download(msg))` otherwise.
+    */
+  def downloadFrom(s3Object: S3Object, file: File): Error.Download + File = {
+    println(s"Downloading $s3Object to $file.")
+    val tm = TransferManagerBuilder
+      .standard()
+      .withS3Client(s3.defaultClient)
+      .build()
+
+    scala.util.Try {
+      tm.download(
+          s3Object.bucket,
+          s3Object.key,
+          file
+        )
+        .waitForCompletion()
+    } match {
+      case scala.util.Success(s) => Right(file)
+      case scala.util.Failure(e) => Left(Error.Download(e.toString))
+    }
+  }
+>>>>>>> tmp/master
 
   /**
     * Returns `Right(directory)` if it was possible to create all directories
@@ -94,4 +134,16 @@ case object utils {
         Left(Error.DirCreation(s"Error creating directory $directory."))
     else
       Right(directory)
+<<<<<<< HEAD
+=======
+
+  /**
+    * Returns `Right(Iterator[String])` if it was possible to read the lines from the file, `Left(Error.FileNotFound(msg))` otherwise.
+    */
+  def retrieveLinesFrom(file: File): Error.FileNotFound + Iterator[String] =
+    if (file.exists)
+      Right(io.Source.fromFile(file.getCanonicalPath).getLines)
+    else
+      Left(Error.FileNotFound(s"Error reading $file: file does not exist."))
+>>>>>>> tmp/master
 }
