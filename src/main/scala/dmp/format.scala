@@ -38,6 +38,7 @@ case object nodes {
   def fromLines(lines: Iterator[String]): Iterator[Node] =
     lines map Node.from
 }
+
 case object names {
 
   def fromLines(lines: Iterator[String]): Iterator[ScientificName] =

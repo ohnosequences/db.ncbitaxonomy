@@ -7,6 +7,9 @@ package object ncbitaxonomy {
   private[ncbitaxonomy] type +[A, B] =
     Either[A, B]
 
+  type TaxID = Int
+  type TaxTree = Tree[TaxNode]
+
   val sourceFile: java.net.URI =
     new java.net.URI("ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz")
 

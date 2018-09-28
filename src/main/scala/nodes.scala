@@ -1,5 +1,7 @@
 package ohnosequences.db.ncbitaxonomy
 
+final case class TaxNode(id: TaxID, rank: Rank)
+
 trait AnyNode extends Any {
 
   def ID: String
