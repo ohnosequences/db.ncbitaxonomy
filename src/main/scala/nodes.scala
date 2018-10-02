@@ -6,7 +6,7 @@ trait AnyNode extends Any {
 
   def ID: String
   def parentID: String
-  def rank: String
+  def rank: Rank
   // there's more data there
 }
 

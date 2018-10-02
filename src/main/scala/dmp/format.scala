@@ -17,14 +17,11 @@ case object row {
 
 class Node(val fields: Array[String]) extends AnyNode {
 
-  def ID: String =
-    fields(0)
+  def ID: String = fields(0)
 
-  def parentID: String =
-    fields(1)
+  def parentID: String = fields(1)
 
-  def rank: String =
-    fields(2)
+  def rank: Rank = Rank(fields(2))
 }
 
 case object Node {

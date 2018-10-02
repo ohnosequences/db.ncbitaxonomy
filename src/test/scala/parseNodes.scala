@@ -28,13 +28,13 @@ class ParseNodes extends FunSuite {
     assert {
       (firstNode.ID === "318") &&
       (firstNode.parentID === "29438") &&
-      (firstNode.rank === "no rank")
+      (firstNode.rank === Rank.NoRank)
     }
 
     assert {
       (lastNode.ID === "330") &&
       (lastNode.parentID === "1232139") &&
-      (lastNode.rank === "species")
+      (lastNode.rank === Rank.Species)
     }
   }
 }
