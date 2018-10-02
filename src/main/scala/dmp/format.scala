@@ -17,9 +17,9 @@ case object row {
 
 class Node(val fields: Array[String]) extends AnyNode {
 
-  def ID: String = fields(0)
+  def ID: TaxID = fields(0).toInt
 
-  def parentID: String = fields(1)
+  def parentID: TaxID = fields(1).toInt
 
   def rank: Rank = Rank(fields(2))
 }
