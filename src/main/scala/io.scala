@@ -44,31 +44,38 @@ case object io {
   }
 
   def treeMapToTaxTree(tree: TreeMap): TaxTree = {
-    val root     = tree.root
-    val children = tree.children
-    val init     = Option.empty[TaxID]
+    val root        = tree.root
+    val children    = tree.children
+    val init: TaxID = -1
 
-    val values = { gen: Option[TaxID] =>
-      gen.fold(root match {
-        case None =>
-          Array.empty[TaxNode]
-        case Some(value) =>
-          Array(value)
-      }) { parent =>
+    val values = { parent: TaxID =>
+      if (parent == init) {
+        root match {
+          case None =>
+            Array.empty[TaxNode]
+          case Some(value) =>
+            Array(value)
+        }
+      } else
         children.get(parent).getOrElse(Array.empty[TaxNode])
-      }
     }
 
-    val next = { gen: Option[TaxID] =>
-      // if gen == None, output root
-      gen.fold(Array(root.map { _.id })) { parent =>
-        val maybeDescendants = children.get(parent)
-        maybeDescendants.fold(Array.empty[Option[TaxID]]) { descendants =>
-          descendants.map { child =>
-            Some(child.id)
-          }
+    val next = { current: TaxID =>
+      if (current == init) {
+        root match {
+          case None =>
+            Array.empty[TaxID]
+          case Some(taxNode) =>
+            Array(taxNode.id)
         }
-      }
+      } else
+        children
+          .get(current)
+          .fold(Array.empty[TaxID]) { nodes =>
+            nodes.map { node =>
+              node.id
+            }
+          }
     }
 
     Tree.unfold(values, next)(init)
