@@ -1,8 +1,8 @@
 package ohnosequences.db.ncbitaxonomy
 
 sealed abstract class Rank
-case object Rank {
 
+case object Rank {
   case object Superkingdom    extends Rank
   case object Kingdom         extends Rank
   case object Subkingdom      extends Rank

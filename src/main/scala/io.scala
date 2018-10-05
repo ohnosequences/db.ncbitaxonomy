@@ -2,6 +2,7 @@ package ohnosequences.db.ncbitaxonomy
 
 import ohnosequences.forests.Tree
 import scala.collection.mutable.{ArrayBuffer, Map => MutableMap}
+import ohnosequences.files.Lines
 
 case object io {
 
@@ -11,14 +12,15 @@ case object io {
   )
 
   // Return a TreeMap
-  def generateNodesMap(lines: Iterator[String]): TreeMap = {
-
+  def generateNodesMap(lines: Lines): TreeMap = {
     val children = MutableMap[TaxID, ArrayBuffer[TaxNode]]()
-    val nodes    = dmp.nodes.fromLines(lines)
+    val nodes = lines.map { line =>
+      parse.node.fromLine(line)
+    }
 
     val root = nodes.foldLeft(Option.empty[TaxNode]) { (maybeRoot, node) =>
       val parent  = node.parentID
-      val id      = node.ID
+      val id      = node.id
       val rank    = node.rank
       val taxNode = TaxNode(id, rank)
 
