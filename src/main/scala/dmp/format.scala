@@ -15,25 +15,16 @@ case object row {
       .toArray[String]
 }
 
-class Node(val fields: Array[String]) extends AnyNode {
-
-  def ID: TaxID = fields(0).toInt
-
-  def parentID: TaxID = fields(1).toInt
-
-  def rank: Rank = Rank(fields(2))
-}
-
 case object Node {
 
-  def from(line: String): Node =
-    new Node(row.fromLine(line))
-}
+  def fromLine(line: String): Node = {
+    val fields   = row.fromLine(line)
+    val id       = fields(0).toInt
+    val parentID = fields(1).toInt
+    val rank     = Rank(fields(2))
 
-case object nodes {
-
-  def fromLines(lines: Iterator[String]): Iterator[Node] =
-    lines map Node.from
+    Node(id, parentID, rank)
+  }
 }
 
 case object names {

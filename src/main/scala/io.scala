@@ -11,7 +11,6 @@ case object io {
   )
 
   // Return a TreeMap
-  @SuppressWarnings(Array("org.wartremover.warts.MutableDataStructures"))
   def generateNodesMap(lines: Iterator[String]): TreeMap = {
 
     val children = MutableMap[TaxID, ArrayBuffer[TaxNode]]()
