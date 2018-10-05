@@ -1,18 +1,11 @@
 package ohnosequences.db.ncbitaxonomy
 
-trait AnyNode extends Any {
+final case class TaxNode(id: TaxID, rank: Rank)
 
-  def ID: String
-  def parentID: String
-  def rank: String
-  // there's more data there
-}
+final case class Node(
+    id: TaxID,
+    parentID: TaxID,
+    rank: Rank
+)
 
-sealed trait AnyNodeName {
-
-  def nodeID: String
-  def name: String
-}
-
-final case class ScientificName(nodeID: String, name: String)
-    extends AnyNodeName
+final case class ScientificName(nodeID: TaxID, name: String)

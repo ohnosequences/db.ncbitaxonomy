@@ -1,11 +1,13 @@
 package ohnosequences.db
 
 import ohnosequences.awstools.s3._ // S3{Folder,Object} and s3"" string creation
+import ohnosequences.forests._
 
 package object ncbitaxonomy {
 
-  private[ncbitaxonomy] type +[A, B] =
-    Either[A, B]
+  type +[A, B] = Either[A, B]
+  type TaxID   = Int
+  type TaxTree = Tree[TaxNode]
 
   val sourceFile: java.net.URI =
     new java.net.URI("ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz")
