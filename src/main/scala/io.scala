@@ -1,19 +1,19 @@
 package ohnosequences.db.ncbitaxonomy
 
 import ohnosequences.forests.Tree
-import scala.collection.mutable.{ArrayBuffer, Map => MutableMap}
+import scala.collection.mutable.{ArrayBuffer, HashMap}
 import ohnosequences.files.Lines
 
 case object io {
 
   final case class TreeMap(
       root: Option[TaxNode],
-      children: MutableMap[TaxID, Array[TaxNode]]
+      children: HashMap[TaxID, Array[TaxNode]]
   )
 
   // Return a TreeMap
   def generateNodesMap(lines: Lines): TreeMap = {
-    val children = MutableMap[TaxID, ArrayBuffer[TaxNode]]()
+    val children = HashMap[TaxID, ArrayBuffer[TaxNode]]()
     val nodes = lines.map { line =>
       parse.node.fromLine(line)
     }

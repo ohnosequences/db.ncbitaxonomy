@@ -1,6 +1,5 @@
 package ohnosequences.db.ncbitaxonomy.test
 
-import org.scalatest.FunSuite
 import ohnosequences.db.ncbitaxonomy._
 
 class ParseNames extends NCBITaxonomyTest("ParseNames") {
@@ -31,8 +30,8 @@ class ParseNames extends NCBITaxonomyTest("ParseNames") {
 
     assert {
       parse.names.fromLines(nameLines.toIterator).toSeq === Seq(
-        ScientificName("195", "Campylobacter coli"),
-        ScientificName("245", "Flavobacterium aquatile")
+        ScientificName(195, "Campylobacter coli"),
+        ScientificName(245, "Flavobacterium aquatile")
       )
     }
   }

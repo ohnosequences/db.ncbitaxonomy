@@ -68,6 +68,6 @@ case object Rank {
       case "varietas"        => Varietas
       case "forma"           => Forma
       case "norank"          => NoRank
-      case  _                => RankError
+      case _                 => RankError
     }
 }

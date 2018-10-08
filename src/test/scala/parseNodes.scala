@@ -1,6 +1,5 @@
 package ohnosequences.db.ncbitaxonomy.test
 
-import org.scalatest.FunSuite
 import org.scalatest.OptionValues.convertOptionToValuable
 import ohnosequences.db.ncbitaxonomy._
 
@@ -26,14 +25,14 @@ class ParseNodes extends NCBITaxonomyTest("ParseNodes") {
     val lastNode  = nodes.lastOption.value
 
     assert {
-      (firstNode.ID === "318") &&
-      (firstNode.parentID === "29438") &&
+      (firstNode.id === 318) &&
+      (firstNode.parentID === 29438) &&
       (firstNode.rank === Rank.NoRank)
     }
 
     assert {
-      (lastNode.ID === "330") &&
-      (lastNode.parentID === "1232139") &&
+      (lastNode.id === 330) &&
+      (lastNode.parentID === 1232139) &&
       (lastNode.rank === Rank.Species)
     }
   }

@@ -1,5 +1,5 @@
 libraryDependencies ++= Seq(
-  "ohnosequences" %% "s3"      % "0.1.0",
+  "ohnosequences" %% "s3"      % "0.1.0-4-gaa153b0",
   "ohnosequences" %% "forests" % "0.1.0"
 ) ++ testDependencies
 
