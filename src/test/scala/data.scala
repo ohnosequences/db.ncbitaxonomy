@@ -5,9 +5,9 @@ import java.io.File
 
 object data {
 
-  def namesLocalFile(dbVersion: db.ncbitaxonomy.Version) =
+  val namesLocalFile(dbVersion: db.ncbitaxonomy.Version) =
     new File(s"./data/in/${dbVersion}/names.dmp")
 
-  def nodesLocalFile(dbVersion: db.ncbitaxonomy.Version) =
+  val nodesLocalFile(dbVersion: db.ncbitaxonomy.Version) =
     new File(s"./data/in/${dbVersion}/nodes.dmp")
 }

@@ -33,11 +33,17 @@ case object parse {
       fromRow((row.fromLine(line)): @inline): @inline
   }
 
+  case object nodes {
+
+    def fromLines(lines: Lines): Iterator[Node] =
+      lines.map { node.fromLine(_): @inline }
+  }
+
   case object names {
 
     def fromLines(lines: Lines): Iterator[ScientificName] =
       lines
-        .map { row.fromLine(_) }
+        .map { row.fromLine(_): @inline }
         .filter { fields =>
           fields(3) == "scientific name"
         }

@@ -4,7 +4,7 @@ import org.scalatest.FunSuite
 import org.scalatest.OptionValues.convertOptionToValuable
 import ohnosequences.db.ncbitaxonomy._
 
-class ParseNodes extends FunSuite {
+class ParseNodes extends NCBITaxonomyTest("ParseNodes") {
 
   val nodeLines: Seq[String] =
     Seq(
@@ -20,7 +20,7 @@ class ParseNodes extends FunSuite {
   test("parse several nodes") {
 
     val nodes =
-      dmp.nodes.fromLines(nodeLines.toIterator).toSeq
+      parse.nodes.fromLines(nodeLines.toIterator).toSeq
 
     val firstNode = nodes.headOption.value
     val lastNode  = nodes.lastOption.value

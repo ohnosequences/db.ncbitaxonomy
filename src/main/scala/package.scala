@@ -18,10 +18,9 @@ package object ncbitaxonomy {
       new S3ObjectId(
         "resources.ohnosequences.com",
         List(
-          "ohnosequences",
           "db",
           "ncbitaxonomy",
-          version.toString,
+          version.name,
           file
         ).mkString("/")
     )

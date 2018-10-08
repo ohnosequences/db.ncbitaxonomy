@@ -33,6 +33,7 @@ case object Rank {
   case object Varietas        extends Rank
   case object Forma           extends Rank
   case object NoRank          extends Rank
+  case object RankError       extends Rank
 
   def apply(str: String): Rank =
     // Normalize str: remove all whitespaces, make it lower case
@@ -67,5 +68,6 @@ case object Rank {
       case "varietas"        => Varietas
       case "forma"           => Forma
       case "norank"          => NoRank
+      case  _                => RankError
     }
 }

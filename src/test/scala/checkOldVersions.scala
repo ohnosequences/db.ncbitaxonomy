@@ -1,7 +1,6 @@
 package ohnosequences.db.ncbitaxonomy.test
 
 import ohnosequences.db.ncbitaxonomy.{Version, names, nodes}
-import ohnosequences.awstools.s3, s3.ScalaS3Client
 
 class CheckOldVersions extends org.scalatest.FunSuite {
 
