@@ -2,7 +2,7 @@ package ohnosequences.db.ncbitaxonomy
 
 import ohnosequences.forests.Tree
 import scala.collection.mutable.{ArrayBuffer, HashMap}
-import ohnosequences.files.Lines
+import ohnosequences.files.{read, Lines, File, Error => FileError}
 
 case object io {
 
@@ -18,16 +18,15 @@ case object io {
       children: HashMap[TaxID, Array[TaxNode]]
   )
 
-  private case class IdWithRank(id: TaxID, rank: Rank)
+  private final case class IdWithRank(id: TaxID, rank: Rank)
 
   // Return a RankMap
-  private def generateRanksMap(lines: Lines): RankMap = {
+  private def generateRanksMap(nodesLines: Lines): RankMap = {
     val children = new HashMap[TaxID, ArrayBuffer[IdWithRank]]
-    val maybeNodes = lines.map { line =>
-      parse.node.fromLine(line)
-    }
 
-    val root = maybeNodes.foldLeft(Option.empty[IdWithRank]) {
+    val nodes = parse.nodes.fromLines(nodesLines)
+
+    val root = nodes.foldLeft(Option.empty[IdWithRank]) {
       (maybeRoot, maybeNode) =>
         maybeNode match {
           case Some(Node(id, parent, rank)) =>
@@ -55,52 +54,58 @@ case object io {
     new RankMap(root, childrenMap)
   }
 
-  private def generateNamesMap(lines: Lines): NamesMap = {
-    val names = new NamesMap
+  private def generateNamesMap(namesLines: Lines): NamesMap = {
+    val result = new NamesMap
 
-    lines.foreach { line =>
-      val maybeName = parse.name.fromLine(line)
+    val names = parse.names.fromLines(namesLines)
 
-      maybeName match {
-        case Some(ScientificName(id, name)) =>
-          if (!names.isDefinedAt(id))
-            names(id) += name
-        case None => // do nothing
-      }
+    names.foreach {
+      case ScientificName(id, name) =>
+        if (!result.isDefinedAt(id))
+          result += (id -> name)
     }
 
-    names
+    result
   }
 
-  def generatetreeMap(nodesLines: Lines, namesLines: Lines): TreeMap = {
-    val ranks = generateRanksMap(nodesLines)
-    val names = generateNamesMap(namesLines)
-
-    val root = ranks.root.flatMap {
-      case IdWithRank(id, rank) =>
-        names.get(id).map { name =>
-          TaxNode(id, rank, name)
-        }
+  def generateTreeMap(nodesFile: File, namesFile: File): FileError + TreeMap = {
+    val ranksResult = read.withLines(nodesFile) { lines =>
+      generateRanksMap(lines)
     }
 
-    val children =
-      if (!root.isEmpty) {
-        ranks.children.map {
-          case (id, descendants) =>
-            val newDescendants = descendants.map {
-              case IdWithRank(id, rank) =>
-                names.get(id).map { name =>
-                  TaxNode(id, rank, name)
-                }
-            }.flatten
-
-            (id, newDescendants)
-        }
-      } else {
-        HashMap.empty[TaxID, Array[TaxNode]]
+    ranksResult.flatMap { ranks =>
+      val namesResult = read.withLines(namesFile) { lines =>
+        generateNamesMap(lines)
       }
 
-    new TreeMap(root, children)
+      namesResult.map { names =>
+        val root = ranks.root.flatMap {
+          case IdWithRank(id, rank) =>
+            names.get(id).map { name =>
+              TaxNode(id, rank, name)
+            }
+        }
+
+        val children =
+          if (!root.isEmpty) {
+            ranks.children.map {
+              case (id, descendants) =>
+                val newDescendants = descendants.map {
+                  case IdWithRank(id, rank) =>
+                    names.get(id).map { name =>
+                      TaxNode(id, rank, name)
+                    }
+                }.flatten
+
+                (id, newDescendants)
+            }
+          } else {
+            HashMap.empty[TaxID, Array[TaxNode]]
+          }
+
+        new TreeMap(root, children)
+      }
+    }
   }
 
   def treeMapToTaxTree(tree: TreeMap): TaxTree = {
@@ -140,5 +145,10 @@ case object io {
 
     Tree.unfold(values, next)(init)
   }
+
+  def generateTaxTree(nodesFile: File, namesFile: File): FileError + TaxTree =
+    generateTreeMap(nodesFile: File, namesFile: File).map { tree =>
+      treeMapToTaxTree(tree)
+    }
 
 }
