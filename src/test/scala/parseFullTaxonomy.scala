@@ -53,7 +53,7 @@ class ParseFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
     }
   }
 
-  test("Check that there is a name for each node", ReleaseOnlyTest) {
+  test("Check that there is a name for each correclty parsed node", ReleaseOnlyTest) {
 
     Version.all.foreach { version =>
       val nodes = parse.nodes.fromLines(getNodesLines(version))
@@ -74,7 +74,7 @@ class ParseFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
     }
   }
 
-  test("Ids are all positive for nodes", ReleaseOnlyTest) {
+  test("Ids are all positive for all correclty parsed node", ReleaseOnlyTest) {
 
     Version.all foreach { version =>
       parse.nodes.fromLines(getNodesLines(version)) foreach {
@@ -88,7 +88,7 @@ class ParseFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
 
   // Ensures we can turn data into a tree, although we should check that
   // number of nodes in the tree matches number of read nodes
-  test("There is no node with more than a parent", ReleaseOnlyTest) {
+  test("There is no correclty parsed node with more than a parent", ReleaseOnlyTest) {
 
     Version.all foreach { version =>
       val nonOrphan = new HashSet[TaxID]
