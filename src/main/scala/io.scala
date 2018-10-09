@@ -1,12 +1,15 @@
 package ohnosequences.db.ncbitaxonomy
 
 import ohnosequences.forests.{Tree, io => treeIO, IOError => SerializationError}
+import treeIO.{Serialization, SerializationFormat}
 import scala.collection.mutable.{ArrayBuffer, HashMap}
 import ohnosequences.files.{read, write, Lines, File, Error => FileError}
 
 case object io {
 
   import StringUtils._
+
+  val defaultFormat: SerializationFormat = SerializationFormat(";;;", "///")
 
   private final case class RankMap(
       root: Option[IdWithRank],
@@ -28,7 +31,7 @@ case object io {
 
     val nodes = parse.nodes.fromLines(nodesLines)
 
-    /* 
+    /*
      Find root while looping through the nodes, where
      the root is the node whose parent and id are the same
 
@@ -123,8 +126,8 @@ case object io {
   }
 
   def treeMapToTaxTree(tree: TreeMap): TaxTree = {
-    val root        = tree.root
-    val children    = tree.children
+    val root     = tree.root
+    val children = tree.children
     // Generator. Let's keep in mind that root of the tree is TaxID 1
     val init: TaxID = -1
 
@@ -173,7 +176,7 @@ case object io {
       shapeFile: File
   ): FileError + (File, File) = {
 
-    val format = treeIO.defaultFormat
+    val format = defaultFormat
 
     val serialization = treeIO.serializeTree(tree, format)
     // data and shape are numberedLines, we need to map them to
@@ -216,10 +219,10 @@ case object io {
       read.withLines(shapeFile) { shapeLines =>
         val shape = shapeLines.zipWithIndex
 
-        val serialization = treeIO.Serialization(
+        val serialization = Serialization(
           data,
           shape,
-          treeIO.defaultFormat
+          defaultFormat
         )
 
         val tree = treeIO.deserializeTree(
