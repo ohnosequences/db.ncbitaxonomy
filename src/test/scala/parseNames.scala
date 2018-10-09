@@ -1,9 +1,8 @@
 package ohnosequences.db.ncbitaxonomy.test
 
-import org.scalatest.FunSuite
 import ohnosequences.db.ncbitaxonomy._
 
-class ParseNames extends FunSuite {
+class ParseNames extends NCBITaxonomyTest("ParseNames") {
 
   val nameLines: Seq[String] =
     Seq(
@@ -30,9 +29,9 @@ class ParseNames extends FunSuite {
   test("only scientific names are parsed") {
 
     assert {
-      dmp.names.fromLines(nameLines.toIterator).toSeq === Seq(
-        ScientificName("195", "Campylobacter coli"),
-        ScientificName("245", "Flavobacterium aquatile")
+      parse.names.fromLines(nameLines.toIterator).toSeq === Seq(
+        ScientificName(195, "Campylobacter coli"),
+        ScientificName(245, "Flavobacterium aquatile")
       )
     }
   }

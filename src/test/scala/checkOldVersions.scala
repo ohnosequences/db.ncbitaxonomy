@@ -1,13 +1,10 @@
 package ohnosequences.db.ncbitaxonomy.test
 
 import ohnosequences.db.ncbitaxonomy.{Version, names, nodes}
-import ohnosequences.awstools.s3, s3.ScalaS3Client
 
-class CheckOldVersions extends org.scalatest.FunSuite {
+class CheckOldVersions extends NCBITaxonomyTest("CheckOldVersions") {
 
-  private val s3Client = ScalaS3Client(s3.defaultClient)
-
-  test("S3 objects exist for all versions") {
+  test("S3 objects (nodes and names) exist for all versions") {
 
     val versionObjects =
       Version.all map { version =>
@@ -18,7 +15,8 @@ class CheckOldVersions extends org.scalatest.FunSuite {
       versionObjects forall {
         case (version, namesObj, nodesObj) =>
           println(s"S3 objects exist: ${version.name}")
-          s3Client.objectExists(namesObj) && s3Client.objectExists(nodesObj)
+          objectExists(namesObj) &&
+          objectExists(nodesObj)
       }
     }
   }

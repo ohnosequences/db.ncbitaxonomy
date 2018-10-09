@@ -1,8 +1,8 @@
 package ohnosequences.db.ncbitaxonomy
 
 sealed abstract class Rank
-case object Rank {
 
+case object Rank {
   case object Superkingdom    extends Rank
   case object Kingdom         extends Rank
   case object Subkingdom      extends Rank
@@ -34,38 +34,39 @@ case object Rank {
   case object Forma           extends Rank
   case object NoRank          extends Rank
 
-  def apply(str: String): Rank =
+  def apply(str: String): Option[Rank] =
     // Normalize str: remove all whitespaces, make it lower case
     str.replaceAll("\\s", "").toLowerCase match {
-      case "superkingdom"    => Superkingdom
-      case "kingdom"         => Kingdom
-      case "subkingdom"      => Subkingdom
-      case "superphylum"     => Superphylum
-      case "phylum"          => Phylum
-      case "subphylum"       => Subphylum
-      case "superclass"      => Superclass
-      case "class"           => Class
-      case "subclass"        => Subclass
-      case "infraclass"      => Infraclass
-      case "cohort"          => Cohort
-      case "superorder"      => Superorder
-      case "order"           => Order
-      case "suborder"        => Suborder
-      case "infraorder"      => Infraorder
-      case "parvorder"       => Parvorder
-      case "superfamily"     => Superfamily
-      case "family"          => Family
-      case "subfamily"       => Subfamily
-      case "tribe"           => Tribe
-      case "subtribe"        => Subtribe
-      case "genus"           => Genus
-      case "subgenus"        => Subgenus
-      case "speciesgroup"    => SpeciesGroup
-      case "speciessubgroup" => SpeciesSubgroup
-      case "species"         => Species
-      case "subspecies"      => Subspecies
-      case "varietas"        => Varietas
-      case "forma"           => Forma
-      case "norank"          => NoRank
+      case "superkingdom"    => Some(Superkingdom)
+      case "kingdom"         => Some(Kingdom)
+      case "subkingdom"      => Some(Subkingdom)
+      case "superphylum"     => Some(Superphylum)
+      case "phylum"          => Some(Phylum)
+      case "subphylum"       => Some(Subphylum)
+      case "superclass"      => Some(Superclass)
+      case "class"           => Some(Class)
+      case "subclass"        => Some(Subclass)
+      case "infraclass"      => Some(Infraclass)
+      case "cohort"          => Some(Cohort)
+      case "superorder"      => Some(Superorder)
+      case "order"           => Some(Order)
+      case "suborder"        => Some(Suborder)
+      case "infraorder"      => Some(Infraorder)
+      case "parvorder"       => Some(Parvorder)
+      case "superfamily"     => Some(Superfamily)
+      case "family"          => Some(Family)
+      case "subfamily"       => Some(Subfamily)
+      case "tribe"           => Some(Tribe)
+      case "subtribe"        => Some(Subtribe)
+      case "genus"           => Some(Genus)
+      case "subgenus"        => Some(Subgenus)
+      case "speciesgroup"    => Some(SpeciesGroup)
+      case "speciessubgroup" => Some(SpeciesSubgroup)
+      case "species"         => Some(Species)
+      case "subspecies"      => Some(Subspecies)
+      case "varietas"        => Some(Varietas)
+      case "forma"           => Some(Forma)
+      case "norank"          => Some(NoRank)
+      case _                 => None
     }
 }

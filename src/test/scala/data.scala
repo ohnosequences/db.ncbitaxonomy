@@ -1,13 +1,12 @@
 package ohnosequences.db.ncbitaxonomy.test
 
-import ohnosequences.db
-import java.io.File
+import ohnosequences.db.ncbitaxonomy.Version
 
 object data {
 
-  def namesLocalFile(dbVersion: db.ncbitaxonomy.Version) =
-    new File(s"./data/in/${dbVersion}/names.dmp")
+  def namesLocalFile(version: Version): File =
+    new File(s"./data/in/${version}/names.dmp")
 
-  def nodesLocalFile(dbVersion: db.ncbitaxonomy.Version) =
-    new File(s"./data/in/${dbVersion}/nodes.dmp")
+  def nodesLocalFile(version: Version): File =
+    new File(s"./data/in/${version}/nodes.dmp")
 }
