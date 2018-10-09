@@ -1,10 +1,12 @@
 package ohnosequences.db.ncbitaxonomy
 
-import ohnosequences.forests.Tree
+import ohnosequences.forests.{Tree, io => treeIO, IOError => SerializationError}
 import scala.collection.mutable.{ArrayBuffer, HashMap}
-import ohnosequences.files.{read, Lines, File, Error => FileError}
+import ohnosequences.files.{read, write, Lines, File, Error => FileError}
 
 case object io {
+
+  import StringUtils._
 
   private final case class RankMap(
       root: Option[IdWithRank],
@@ -150,5 +152,72 @@ case object io {
     generateTreeMap(nodesFile: File, namesFile: File).map { tree =>
       treeMapToTaxTree(tree)
     }
+
+  def dumpTaxTreeToFiles(
+      tree: TaxTree,
+      dataFile: File,
+      shapeFile: File
+  ): FileError + (File, File) = {
+
+    val format = treeIO.defaultFormat
+
+    val serialization = treeIO.serializeTree(tree, format)
+    // data and shape are numberedLines, we need to map them to their first element to
+    // dump them to a file
+    val data  = serialization.data.map { _._1 }
+    val shape = serialization.shape.map { _._1 }
+
+    val dataResult = write.linesToFile(dataFile)(data)
+
+    dataResult.flatMap { dataFile =>
+      val shapeResult = write.linesToFile(shapeFile)(shape)
+      shapeResult.map { shapeFile =>
+        (dataFile, shapeFile)
+      }
+    }
+  }
+
+  def readTaxTreeFromFiles(
+      dataFile: File,
+      shapeFile: File
+  ): FileError + (SerializationError + TaxTree) = {
+    val taxNodeRegex = "TaxNode\\((\\d+),([a-zA-Z]*),(.*)\\)".r
+
+    val fromString: String => Option[TaxNode] = { str =>
+      // Return a TaxNode iff id, parent and name can be parsed
+      str match {
+        case taxNodeRegex(idStr, rankStr, name) =>
+          idStr.toIntOpt.flatMap { id =>
+            Rank(rankStr).map { rank =>
+              TaxNode(id, rank, name)
+            }
+          }
+        case _ => None
+      }
+    }
+
+    val treeResult = read.withLines(dataFile) { dataLines =>
+      val data = dataLines.zipWithIndex
+
+      read.withLines(shapeFile) { shapeLines =>
+        val shape = shapeLines.zipWithIndex
+
+        val serialization = treeIO.Serialization(
+          data,
+          shape,
+          treeIO.defaultFormat
+        )
+
+        val tree = treeIO.deserializeTree(
+          serialization,
+          fromString
+        )
+
+        tree
+      }
+    }
+
+    treeResult.fold(dataError => Left(dataError), shapeResult => shapeResult)
+  }
 
 }
