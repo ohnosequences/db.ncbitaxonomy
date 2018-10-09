@@ -28,6 +28,12 @@ case object io {
 
     val nodes = parse.nodes.fromLines(nodesLines)
 
+    /* 
+     Find root while looping through the nodes, where
+     the root is the node whose parent and id are the same
+
+     Main loop fills children map
+     */
     val root = nodes.foldLeft(Option.empty[IdWithRank]) {
       (maybeRoot, maybeNode) =>
         maybeNode match {
@@ -48,6 +54,7 @@ case object io {
         }
     }
 
+    // Transform ArrayBuffers to Arrays
     val childrenMap = children.map {
       case (parent, descendants) =>
         (parent, descendants.toArray)
@@ -71,11 +78,13 @@ case object io {
   }
 
   def generateTreeMap(nodesFile: File, namesFile: File): FileError + TreeMap = {
+    // Read nodes file
     val ranksResult = read.withLines(nodesFile) { lines =>
       generateRanksMap(lines)
     }
 
     ranksResult.flatMap { ranks =>
+      // Read names file
       val namesResult = read.withLines(namesFile) { lines =>
         generateNamesMap(lines)
       }
@@ -89,6 +98,9 @@ case object io {
         }
 
         val children =
+          // If root is not empty, build descendants
+          // Else, output empty children, since nothing is
+          // going to be built up having a missing root
           if (!root.isEmpty) {
             ranks.children.map {
               case (id, descendants) =>
@@ -113,8 +125,10 @@ case object io {
   def treeMapToTaxTree(tree: TreeMap): TaxTree = {
     val root        = tree.root
     val children    = tree.children
+    // Generator. Let's keep in mind that root of the tree is TaxID 1
     val init: TaxID = -1
 
+    // Define values and next function to apply unfold and build tree
     val values = { parent: TaxID =>
       if (parent == init) {
         root match {
@@ -162,8 +176,8 @@ case object io {
     val format = treeIO.defaultFormat
 
     val serialization = treeIO.serializeTree(tree, format)
-    // data and shape are numberedLines, we need to map them to their first element to
-    // dump them to a file
+    // data and shape are numberedLines, we need to map them to
+    // their first element to dump them to a file
     val data  = serialization.data.map { _._1 }
     val shape = serialization.shape.map { _._1 }
 
