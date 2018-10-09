@@ -19,7 +19,7 @@ class ParseNodes extends NCBITaxonomyTest("ParseNodes") {
   test("parse several nodes") {
 
     val nodes =
-      parse.nodes.fromLines(nodeLines.toIterator).toSeq
+      parse.nodes.fromLines(nodeLines.toIterator).toArray.flatten.toSeq
 
     val firstNode = nodes.headOption.value
     val lastNode  = nodes.lastOption.value

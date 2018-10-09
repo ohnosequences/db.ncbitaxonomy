@@ -6,33 +6,45 @@ import ohnosequences.files.Lines
 
 case object io {
 
+  private final case class RankMap(
+      root: Option[IdWithRank],
+      children: HashMap[TaxID, Array[IdWithRank]]
+  )
+
+  private type NamesMap = HashMap[TaxID, String]
+
   final case class TreeMap(
       root: Option[TaxNode],
       children: HashMap[TaxID, Array[TaxNode]]
   )
 
-  // Return a TreeMap
-  def generateNodesMap(lines: Lines): TreeMap = {
-    val children = HashMap[TaxID, ArrayBuffer[TaxNode]]()
-    val nodes = lines.map { line =>
+  private case class IdWithRank(id: TaxID, rank: Rank)
+
+  // Return a RankMap
+  private def generateRanksMap(lines: Lines): RankMap = {
+    val children = new HashMap[TaxID, ArrayBuffer[IdWithRank]]
+    val maybeNodes = lines.map { line =>
       parse.node.fromLine(line)
     }
 
-    val root = nodes.foldLeft(Option.empty[TaxNode]) { (maybeRoot, node) =>
-      val parent  = node.parentID
-      val id      = node.id
-      val rank    = node.rank
-      val taxNode = TaxNode(id, rank)
+    val root = maybeNodes.foldLeft(Option.empty[IdWithRank]) {
+      (maybeRoot, maybeNode) =>
+        maybeNode match {
+          case Some(Node(id, parent, rank)) =>
+            val result = IdWithRank(id, rank)
 
-      if (children.isDefinedAt(parent)) {
-        children(parent) += taxNode
-        maybeRoot
-      } else if (id == parent) {
-        Some(taxNode)
-      } else {
-        children += (parent -> ArrayBuffer(taxNode))
-        maybeRoot
-      }
+            if (children.isDefinedAt(parent)) {
+              children(parent) += result
+              maybeRoot
+            } else if (id == parent) {
+              Some(result)
+            } else {
+              children += (parent -> ArrayBuffer(result))
+              maybeRoot
+            }
+          case None =>
+            maybeRoot
+        }
     }
 
     val childrenMap = children.map {
@@ -40,7 +52,55 @@ case object io {
         (parent, descendants.toArray)
     }
 
-    new TreeMap(root, childrenMap)
+    new RankMap(root, childrenMap)
+  }
+
+  private def generateNamesMap(lines: Lines): NamesMap = {
+    val names = new NamesMap
+
+    lines.foreach { line =>
+      val maybeName = parse.name.fromLine(line)
+
+      maybeName match {
+        case Some(ScientificName(id, name)) =>
+          if (!names.isDefinedAt(id))
+            names(id) += name
+        case None => // do nothing
+      }
+    }
+
+    names
+  }
+
+  def generatetreeMap(nodesLines: Lines, namesLines: Lines): TreeMap = {
+    val ranks = generateRanksMap(nodesLines)
+    val names = generateNamesMap(namesLines)
+
+    val root = ranks.root.flatMap {
+      case IdWithRank(id, rank) =>
+        names.get(id).map { name =>
+          TaxNode(id, rank, name)
+        }
+    }
+
+    val children =
+      if (!root.isEmpty) {
+        ranks.children.map {
+          case (id, descendants) =>
+            val newDescendants = descendants.map {
+              case IdWithRank(id, rank) =>
+                names.get(id).map { name =>
+                  TaxNode(id, rank, name)
+                }
+            }.flatten
+
+            (id, newDescendants)
+        }
+      } else {
+        HashMap.empty[TaxID, Array[TaxNode]]
+      }
+
+    new TreeMap(root, children)
   }
 
   def treeMapToTaxTree(tree: TreeMap): TaxTree = {

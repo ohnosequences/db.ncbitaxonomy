@@ -6,7 +6,9 @@ import ohnosequences.files.Lines
 object StringUtils {
   implicit class StringImprovements(val s: String) {
     import scala.util.control.Exception._
-    def toIntOpt = catching(classOf[NumberFormatException]) opt s.toInt
+
+    def toIntOpt: Option[Int] =
+      catching(classOf[NumberFormatException]) opt s.toInt
   }
 }
 
@@ -30,7 +32,7 @@ case object parse {
   }
 
   case object node {
-    val empty = Option.empty[Node]
+    val empty: Option[Node] = Option.empty[Node]
 
     def fromRow(fields: Row): Option[Node] =
       // We need at least 3 fields to be able to parse something
@@ -39,10 +41,10 @@ case object parse {
         val maybeParent = fields(1).toIntOpt
         val maybeRank   = Rank(fields(2))
 
-        maybeID.foldLeft(empty) { id =>
-          maybeParent.foldLeft(empty) { parent =>
-            maybeRank.foldLeft(empty) { rank =>
-              Node(id, parentID, rank)
+        maybeID.fold(empty) { id: TaxID =>
+          maybeParent.fold(empty) { parent: TaxID =>
+            maybeRank.fold(empty) { rank: Rank =>
+              Some(Node(id, parent, rank))
             }
           }
         }
@@ -55,17 +57,13 @@ case object parse {
 
   case object nodes {
 
-    def fromLines(lines: Lines): Iterator[Node] =
+    def fromLines(lines: Lines): Iterator[Option[Node]] =
       lines
         .map { node.fromLine(_): @inline }
-        .collect {
-          case Some(node) =>
-            node
-        }
   }
 
   case object name {
-    val empty = Option.empty[ScientificName]
+    val empty: Option[ScientificName] = Option.empty[ScientificName]
 
     def fromRow(fields: Row): Option[ScientificName] =
       // We need at least 4 fields to be able to parse something
@@ -73,8 +71,8 @@ case object parse {
         val maybeID = fields(0).toIntOpt
         val name    = fields(1)
 
-        maybeID.foldLeft(empty) { id =>
-          ScientificName(id, name)
+        maybeID.fold(empty) { id =>
+          Some(ScientificName(id, name))
         }
       } else
         empty

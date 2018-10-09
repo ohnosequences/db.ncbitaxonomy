@@ -1,7 +1,6 @@
 package ohnosequences.db.ncbitaxonomy.test
 
 import scala.collection.mutable.HashSet
-import scala.collection.mutable.HashMap
 import ohnosequences.db.ncbitaxonomy._
 import ohnosequences.db
 import ohnosequences.test.ReleaseOnlyTest
@@ -34,35 +33,70 @@ class ParseFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
         val id   = sciName.nodeID
         val name = sciName.name
 
-        assert { !seen.contains(id) }
+        // Ensure only one name per id
+        assert { seen.add(id) }
         assert { id > 0 }
+        // Ensure name is not empty
         assert { !name.isEmpty }
-
-        seen += id
       }
     }
-
   }
 
-  test("Parse all nodes and access all data", ReleaseOnlyTest) {
+  test("All nodes can be parsed for all versions", ReleaseOnlyTest) {
 
     Version.all foreach { version =>
-      val nonOrphan = new HashMap[TaxID, TaxID]
+      val nodes = parse.nodes.fromLines(getNodesLines(version))
 
-      parse.nodes.fromLines(getNodesLines(version)) foreach { node =>
-        val id     = node.id
-        val parent = node.parentID
-        val rank   = node.rank
+      nodes foreach { maybeNode =>
+        assert { !maybeNode.isEmpty }
+      }
+    }
+  }
 
-        assert { id > 0 }
-        assert { parent > 0 }
+  test("Check that there is a name for each node", ReleaseOnlyTest) {
 
-        // Each node should have only a parent
-        assert { !nonOrphan.contains(id) }
-        nonOrphan += (id -> parent)
+    Version.all.foreach { version =>
+      val nodes = parse.nodes.fromLines(getNodesLines(version))
+      val names = parse.names.fromLines(getNamesLines(version))
 
-        // Rank should exist for all nodes
-        assert { rank != Rank.RankError }
+      val withName = new HashSet[TaxID]
+
+      names.foreach {
+        case ScientificName(id, name) =>
+          withName += id
+      }
+
+      nodes.foreach {
+        case Some(Node(id, _, _)) =>
+          assert { withName.contains(id) }
+        case None => // already checked that this case should not arise
+      }
+    }
+  }
+
+  test("Ids are all positive for nodes", ReleaseOnlyTest) {
+
+    Version.all foreach { version =>
+      parse.nodes.fromLines(getNodesLines(version)) foreach {
+        case Some(Node(id, parent, rank)) =>
+          assert { id > 0 }
+          assert { parent > 0 }
+        case None => // already checked that this case should not arise
+      }
+    }
+  }
+
+  // Ensures we can turn data into a tree, although we should check that
+  // number of nodes in the tree matches number of read nodes
+  test("There is no node with more than a parent", ReleaseOnlyTest) {
+
+    Version.all foreach { version =>
+      val nonOrphan = new HashSet[TaxID]
+
+      parse.nodes.fromLines(getNodesLines(version)) foreach {
+        case Some(Node(id, _, _)) =>
+          assert { nonOrphan.add(id) }
+        case None => // already checked that this case should not arise
       }
     }
   }
