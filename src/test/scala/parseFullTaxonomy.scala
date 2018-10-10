@@ -7,37 +7,24 @@ import ohnosequences.test.ReleaseOnlyTest
 
 class ParseFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
 
-  /**
-    * Auxiliary method that returns an Iterator[String] from `file`. If `file`
-    * does not exist, it is downloaded from `s3Object` before parsing its lines.
-    */
-  def getLines(s3Object: S3Object, file: File): Lines = {
-    if (!validFile(file))
-      downloadFromS3(s3Object, file)
-
-    readLines(file)
-  }
-
-  def getNamesLines(version: Version): Lines =
-    getLines(db.ncbitaxonomy.names(version), data.namesLocalFile(version))
-
-  def getNodesLines(version: Version): Lines =
-    getLines(db.ncbitaxonomy.nodes(version), data.nodesLocalFile(version))
-
   test("Parse all names and access all data", ReleaseOnlyTest) {
 
     Version.all foreach { version =>
       val seen = new HashSet[TaxID]
 
-      parse.names.fromLines(getNamesLines(version)) foreach { sciName =>
-        val id   = sciName.nodeID
-        val name = sciName.name
+      readLinesWith(getNamesFile(version)) { lines: Lines =>
+        val names = parse.names.fromLines(lines)
 
-        // Ensure only one name per id
-        assert { seen.add(id) }
-        assert { id > 0 }
-        // Ensure name is not empty
-        assert { !name.isEmpty }
+        names foreach { sciName =>
+          val id   = sciName.nodeID
+          val name = sciName.name
+
+          // Ensure only one name per id
+          assert { seen.add(id) }
+          assert { id > 0 }
+          // Ensure name is not empty
+          assert { !name.isEmpty }
+        }
       }
     }
   }
@@ -45,10 +32,12 @@ class ParseFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
   test("All nodes can be parsed for all versions", ReleaseOnlyTest) {
 
     Version.all foreach { version =>
-      val nodes = parse.nodes.fromLines(getNodesLines(version))
+      readLinesWith(getNodesFile(version)) { lines: Lines =>
+        val nodes = parse.nodes.fromLines(lines)
 
-      nodes foreach { maybeNode =>
-        assert { !maybeNode.isEmpty }
+        nodes foreach { maybeNode =>
+          assert { !maybeNode.isEmpty }
+        }
       }
     }
   }
@@ -56,20 +45,25 @@ class ParseFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
   test("Check that there is a name for each node", ReleaseOnlyTest) {
 
     Version.all.foreach { version =>
-      val nodes = parse.nodes.fromLines(getNodesLines(version))
-      val names = parse.names.fromLines(getNamesLines(version))
+      readLinesWith(getNodesFile(version)) { nodeLines: Lines =>
+        val nodes = parse.nodes.fromLines(nodeLines)
 
-      val withName = new HashSet[TaxID]
+        readLinesWith(getNamesFile(version)) { nameLines: Lines =>
+          val names = parse.names.fromLines(nameLines)
 
-      names.foreach {
-        case ScientificName(id, name) =>
-          withName += id
-      }
+          val withName = new HashSet[TaxID]
 
-      nodes.foreach {
-        case Some(Node(id, _, _)) =>
-          assert { withName.contains(id) }
-        case None => // already checked that this case should not arise
+          names.foreach {
+            case ScientificName(id, name) =>
+              withName += id
+          }
+
+          nodes.foreach {
+            case Some(Node(id, _, _)) =>
+              assert { withName.contains(id) }
+            case None => // already checked that this case should not arise
+          }
+        }
       }
     }
   }
@@ -77,11 +71,15 @@ class ParseFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
   test("Ids are all positive for nodes", ReleaseOnlyTest) {
 
     Version.all foreach { version =>
-      parse.nodes.fromLines(getNodesLines(version)) foreach {
-        case Some(Node(id, parent, rank)) =>
-          assert { id > 0 }
-          assert { parent > 0 }
-        case None => // already checked that this case should not arise
+      readLinesWith(getNodesFile(version)) { nodeLines =>
+        val nodes = parse.nodes.fromLines(nodeLines)
+
+        nodes.foreach {
+          case Some(Node(id, parent, rank)) =>
+            assert { id > 0 }
+            assert { parent > 0 }
+          case None => // already checked that this case should not arise
+        }
       }
     }
   }
@@ -93,11 +91,30 @@ class ParseFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
     Version.all foreach { version =>
       val nonOrphan = new HashSet[TaxID]
 
-      parse.nodes.fromLines(getNodesLines(version)) foreach {
-        case Some(Node(id, _, _)) =>
-          assert { nonOrphan.add(id) }
-        case None => // already checked that this case should not arise
+      readLinesWith(getNodesFile(version)) { nodeLines =>
+        val nodes = parse.nodes.fromLines(nodeLines)
+
+        nodes.foreach {
+          case Some(Node(id, _, _)) =>
+            assert { nonOrphan.add(id) }
+          case None => // already checked that this case should not arise
+        }
       }
+    }
+  }
+
+  test(
+    "Data and shape files can be parsed into a tree with proper number of nodes",
+    ReleaseOnlyTest) {
+
+    Version.all foreach { version =>
+      val treeData  = getTreeDataFile(version)
+      val shapeData = getTreeShapeFile(version)
+      val numNodes  = readLinesWith(getNodesFile(version)) { _.length }
+
+      val tree = generateTree(treeData, shapeData)
+
+      assert { tree.numNodes == numNodes }
     }
   }
 }

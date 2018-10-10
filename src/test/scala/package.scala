@@ -2,7 +2,7 @@ package ohnosequences.db.ncbitaxonomy
 
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import ohnosequences.s3.request
-import ohnosequences.files.{directory, gzip, read, remote, tar, utils}
+import ohnosequences.files.{directory, file, gzip, read, remote, tar, utils}
 import java.net.URL
 import org.scalatest.Assertions.fail
 import ohnosequences.files.{Error => FileError}
@@ -71,11 +71,9 @@ package object test {
   private[test] def validFile(file: File) =
     utils.checkValidFile(file).isRight
 
-  private[test] def readLines(file: File) =
+  private[test] def readLinesWith[A](file: File)(f: Lines => A) =
     failIfFileError {
-      read.withLines(file) { lines =>
-        lines
-      }
+      read.withLines(file)(f)
     }
 
   private[test] def uploadIfNotExists(file: File, s3Obj: S3Object) =
@@ -94,4 +92,47 @@ package object test {
     failIfFileError {
       io.dumpTaxTreeToFiles(tree, dataFile, shapeFile)
     }
+
+  /**
+    * Auxiliary method that downloads a file if it does not exists locally
+    */
+  private[test] def downloadFromS3IfNotExists(s3Object: S3Object,
+                                              file: File): File =
+    if (!validFile(file))
+      downloadFromS3(s3Object, file)
+    else
+      file
+
+  private[test] def recursiveDeleteDirectory(dir: File) =
+    failIfFileError {
+      directory.recursiveDeleteDirectory(dir)
+    }
+
+  private[test] def deleteFile(f: File) =
+    file.deleteFile(f) match {
+      case Left(err: FileError.FileNotFound) =>
+      case Left(err)                         => fail(err.msg)
+      case Right(result)                       =>
+        if (!result)
+          fail("File not erased")
+    }
+
+  private[test] def move(source: File, destination: File) =
+    failIfFileError {
+      file.move(source, destination)
+    }
+
+  def getNodesFile(version: Version): File =
+    downloadFromS3IfNotExists(nodes(version), data.nodesLocalFile(version))
+
+  def getNamesFile(version: Version): File =
+    downloadFromS3IfNotExists(names(version), data.namesLocalFile(version))
+
+  def getTreeDataFile(version: Version): File =
+    downloadFromS3IfNotExists(treeData(version),
+                              data.treeDataLocalFile(version))
+
+  def getTreeShapeFile(version: Version): File =
+    downloadFromS3IfNotExists(treeShape(version),
+                              data.treeShapeLocalFile(version))
 }

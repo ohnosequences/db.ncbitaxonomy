@@ -1,10 +1,10 @@
 package ohnosequences.db.ncbitaxonomy.test
 
-import ohnosequences.db.ncbitaxonomy.{Version, names, nodes}
+import ohnosequences.db.ncbitaxonomy._
 
 class CheckOldVersions extends NCBITaxonomyTest("CheckOldVersions") {
 
-  test("S3 objects (nodes and names) exist for all versions") {
+  test("nodes.dmp and names.dmp exist in S3 for all versions") {
 
     val versionObjects =
       Version.all map { version =>
@@ -17,6 +17,24 @@ class CheckOldVersions extends NCBITaxonomyTest("CheckOldVersions") {
           println(s"S3 objects exist: ${version.name}")
           objectExists(namesObj) &&
           objectExists(nodesObj)
+      }
+    }
+  }
+
+  test(
+    "data.tree and shape.tree exist in S3 for all versions. If not, create them") {
+
+    val versionObjects =
+      Version.all map { version =>
+        (version, treeData(version), treeShape(version))
+      }
+
+    assert {
+      versionObjects forall {
+        case (version, treeData, treeShape) =>
+          println(s"S3 objects exist: ${version.name}")
+          objectExists(treeData) &&
+          objectExists(treeShape)
       }
     }
   }
