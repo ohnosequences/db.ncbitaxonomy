@@ -213,6 +213,7 @@ case object io {
       }
     }
 
+    // Tries to deserialize the tree from the files
     val treeResult = read.withLines(dataFile) { dataLines =>
       val data = dataLines.zipWithIndex
 
@@ -234,6 +235,9 @@ case object io {
       }
     }
 
+    // If error ocurred in the data file retrieval, project to left
+    // If error ocurred in the shape file retrieval, it can be either
+    // a non-existent file or a SerializationError
     treeResult.fold(dataError => Left(dataError), shapeResult => shapeResult)
   }
 

@@ -11,9 +11,11 @@ class Mirror extends NCBITaxonomyTest("Mirror") {
 
     val directory = new File(s"./ncbi-data/${version.name}")
 
-    val localFile = directory.toPath.resolve("taxdump.tar.gz").toFile
-    val namesFile = directory.toPath.resolve("names.dmp").toFile
-    val nodesFile = directory.toPath.resolve("nodes.dmp").toFile
+    val localFile     = directory.toPath.resolve("taxdump.tar.gz").toFile
+    val nodesFile     = directory.toPath.resolve("nodes.dmp").toFile
+    val namesFile     = directory.toPath.resolve("names.dmp").toFile
+    val treeDataFile  = directory.toPath.resolve("data.tree").toFile
+    val treeShapeFile = directory.toPath.resolve("shape.tree").toFile
 
     // Create the relative directory
     createDirectory(directory)
@@ -26,20 +28,21 @@ class Mirror extends NCBITaxonomyTest("Mirror") {
 
     val namesObj = names(version)
     val nodesObj = nodes(version)
-
+    val dataObj  = treeData(version)
+    val shapeObj = treeShape(version)
+    
     // Upload nodes.dmp and names.dmp to their respective S3 locations,
     // only if those objects do not exist.
-    if (!objectExists(namesObj)) {
-      println(s"Uploading $namesFile to $namesObj")
-      uploadTo(namesFile, namesObj)
-    } else
-      println(s"S3 object $namesObj exists; skipping upload")
+    uploadIfNotExists(namesFile, namesObj)
+    uploadIfNotExists(nodesFile, nodesObj)
 
-    if (!objectExists(nodesObj)) {
-      println(s"Uploading $nodesFile to $nodesObj")
-      uploadTo(nodesFile, nodesObj)
-    } else
-      println(s"S3 object $nodesObj exists; skipping upload")
+    // Generate taxonomy tree and upload data.tree and shape.tree to S3, if they
+    // do not exist
+    val tree = generateTree(nodesFile, namesFile)
+    dumpTaxTreeTo(tree, treeDataFile, treeShapeFile)
+
+    uploadIfNotExists(treeDataFile, dataObj)
+    uploadIfNotExists(treeShapeFile, shapeObj)
   }
 
 }

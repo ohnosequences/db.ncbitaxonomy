@@ -9,4 +9,10 @@ object data {
 
   def nodesLocalFile(version: Version): File =
     new File(s"./data/in/${version}/nodes.dmp")
+
+  def treeDataLocalFile(version: Version): File =
+    new File(s"./data/in/${version}/data.tree")
+
+  def treeShapeLocalFile(version: Version): File =
+    new File(s"./data/in/${version}/shape.tree")
 }
