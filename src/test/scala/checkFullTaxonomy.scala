@@ -4,8 +4,10 @@ import scala.collection.mutable.HashSet
 import ohnosequences.db.ncbitaxonomy._
 import ohnosequences.db
 import ohnosequences.test.ReleaseOnlyTest
+import org.scalatest.DoNotDiscover
 
-class ParseFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
+@DoNotDiscover
+class CheckFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
 
   test("Parse all names and access all data", ReleaseOnlyTest) {
 
@@ -112,7 +114,7 @@ class ParseFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
       val shapeData = getTreeShapeFile(version)
       val numNodes  = readLinesWith(getNodesFile(version)) { _.length }
 
-      val tree = generateTree(treeData, shapeData)
+      val tree = readTreeFrom(treeData, shapeData)
 
       assert { tree.numNodes == numNodes }
     }

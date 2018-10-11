@@ -7,6 +7,7 @@ import java.net.URL
 import org.scalatest.Assertions.fail
 import ohnosequences.files.{Error => FileError}
 import ohnosequences.s3.{Error => S3Error}
+import ohnosequences.forests.{IOError => SerializationError}
 import ohnosequences.db.ncbitaxonomy.{TaxTree, io}
 
 package object test {
@@ -22,6 +23,12 @@ package object test {
     }
 
   private def failIfRequestError[X]: S3Error + X => X =
+    _ match {
+      case Right(result) => result
+      case Left(error)   => fail(error.msg)
+    }
+
+  private def failIfSerializatoinError[X]: SerializationError + X => X =
     _ match {
       case Right(result) => result
       case Left(error)   => fail(error.msg)
@@ -93,6 +100,13 @@ package object test {
       io.dumpTaxTreeToFiles(tree, dataFile, shapeFile)
     }
 
+  private[test] def readTreeFrom(dataFile: File, shapeFile: File) =
+    failIfSerializatoinError {
+      failIfFileError {
+        io.readTaxTreeFromFiles(dataFile, shapeFile)
+      }
+    }
+
   /**
     * Auxiliary method that downloads a file if it does not exists locally
     */
@@ -112,7 +126,7 @@ package object test {
     file.deleteFile(f) match {
       case Left(err: FileError.FileNotFound) =>
       case Left(err)                         => fail(err.msg)
-      case Right(result)                       =>
+      case Right(result) =>
         if (!result)
           fail("File not erased")
     }

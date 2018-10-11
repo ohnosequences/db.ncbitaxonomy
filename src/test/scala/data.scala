@@ -5,7 +5,7 @@ import ohnosequences.db.ncbitaxonomy.Version
 object data {
 
   def dataDirectory(version: Version): File =
-    new File(s"./data/in/${version}")
+    new File(s"./data/in/${version.name}")
 
   def namesLocalFile(version: Version): File =
     dataDirectory(version).toPath.resolve("names.dmp").toFile

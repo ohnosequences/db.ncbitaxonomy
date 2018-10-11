@@ -1,7 +1,9 @@
 package ohnosequences.db.ncbitaxonomy.test
 
 import ohnosequences.db.ncbitaxonomy._
+import org.scalatest.DoNotDiscover
 
+@DoNotDiscover
 class CheckOldVersions extends NCBITaxonomyTest("CheckOldVersions") {
 
   test("nodes.dmp and names.dmp exist in S3 for all versions") {
@@ -11,13 +13,12 @@ class CheckOldVersions extends NCBITaxonomyTest("CheckOldVersions") {
         (version, names(version), nodes(version))
       }
 
-    assert {
-      versionObjects forall {
-        case (version, namesObj, nodesObj) =>
-          println(s"S3 objects exist: ${version.name}")
-          objectExists(namesObj) &&
-          objectExists(nodesObj)
-      }
+    versionObjects foreach {
+      case (version, namesObj, nodesObj) =>
+        assert(
+          objectExists(namesObj) && objectExists(nodesObj),
+          s"S3 objects names.dmp and nodes.dmp do not exist for version ${version.name}"
+        )
     }
   }
 
@@ -29,13 +30,12 @@ class CheckOldVersions extends NCBITaxonomyTest("CheckOldVersions") {
         (version, treeData(version), treeShape(version))
       }
 
-    assert {
-      versionObjects forall {
-        case (version, treeData, treeShape) =>
-          println(s"S3 objects exist: ${version.name}")
-          objectExists(treeData) &&
-          objectExists(treeShape)
-      }
+    versionObjects foreach {
+      case (version, treeData, treeShape) =>
+        assert(
+          objectExists(treeData) && objectExists(treeShape),
+          s"S3 objects data.tree and shape.tree do not exist for version ${version.name}"
+        )
     }
   }
 }
