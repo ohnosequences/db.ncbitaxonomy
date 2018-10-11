@@ -1,8 +1,11 @@
 package ohnosequences.db.ncbitaxonomy
 
 sealed abstract class Version { def name: String }
+
+/** All versions of the database */
 case object Version {
 
+  /** This points to the last version */
   val latest: Version   = _0_1_0
   val all: Set[Version] = Set(_0_0_1, _0_1_0)
 
