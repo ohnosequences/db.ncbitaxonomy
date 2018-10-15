@@ -5,6 +5,7 @@ import ohnosequences.db.ncbitaxonomy._
 import ohnosequences.db
 import ohnosequences.test.ReleaseOnlyTest
 import org.scalatest.DoNotDiscover
+import ohnosequences.forests.Tree
 
 @DoNotDiscover
 class CheckFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
@@ -105,8 +106,20 @@ class CheckFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
     }
   }
 
+  test("Generated tree is well formed", ReleaseOnlyTest) {
+
+    Version.all foreach { version =>
+      val treeData  = getTreeDataFile(version)
+      val shapeData = getTreeShapeFile(version)
+
+      val tree = readTreeFrom(treeData, shapeData)
+
+      assert { tree.isWellFormed }
+    }
+  }
+
   test(
-    "Data and shape files can be parsed into a tree with proper number of nodes",
+    "Data and shape files can be parsed into a tree with proper number nodes",
     ReleaseOnlyTest) {
 
     Version.all foreach { version =>
@@ -117,6 +130,23 @@ class CheckFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
       val tree = readTreeFrom(treeData, shapeData)
 
       assert { tree.numNodes == numNodes }
+    }
+  }
+
+  test("Nodes in the generated taxonomic tree are unique", ReleaseOnlyTest) {
+
+    Version.all foreach { version =>
+      val treeData  = getTreeDataFile(version)
+      val shapeData = getTreeShapeFile(version)
+      val numNodes  = readLinesWith(getNodesFile(version)) { _.length }
+
+      // Project values of the tree to the TaxID only
+      val tree = Tree.map(readTreeFrom(treeData, shapeData)) { _.id }
+      // Get number of unique nodes
+      val numUniqueNodes =
+        Tree.filterData[TaxID](tree, _ => true).toSet.size
+
+      assert { numUniqueNodes == numNodes }
     }
   }
 }
