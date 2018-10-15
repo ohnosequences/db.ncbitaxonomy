@@ -23,7 +23,7 @@ class CheckOldVersions extends NCBITaxonomyTest("CheckOldVersions") {
   }
 
   test(
-    "data.tree and shape.tree exist in S3 for all versions. If not, create them") {
+    "data.tree and shape.tree exist in S3 for all versions") {
 
     val versionObjects =
       Version.all map { version =>
