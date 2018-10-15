@@ -60,6 +60,6 @@ package object ncbitaxonomy {
   def treeShape(version: Version): S3Object =
     s3Prefix(version)("shape.tree")
 
-  /** HashingFunction to use when uploading metadata to S3 */
+  /** Hashing function to use when uploading metadata to S3 */
   val hashingFunction: DigestFunction = DigestFunction.SHA512
 }

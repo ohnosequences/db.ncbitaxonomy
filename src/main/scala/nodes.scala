@@ -15,7 +15,6 @@ final case class Node(
     rank: Rank
 )
 
-
 /** Data structure to hold an element from `names.dmp` file:
   * a `nodeID` and the `name` for that taxonomic element
   */

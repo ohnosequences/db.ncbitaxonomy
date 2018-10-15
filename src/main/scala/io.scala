@@ -233,12 +233,13 @@ case object io {
     * val nodesFile = new File("./data/in/0.1.0/nodes.dmp")
     * val namesFile = new File("./data/in/0.1.0/names.dmp")
     * 
-    * val tree = generateTaxTree(nodesFile, namesFile)
-    * dumpTaxTreeToFiles(
-    *  tree, 
-    *  new File("./data/in/0.1.0/data.tree")
-    *  new File("./data/in/0.1.0/shape.tree")
-    * )
+    * generateTaxTree(nodesFile, namesFile).map { tree =>
+    *   dumpTaxTreeToFiles(
+    *     tree, 
+    *     new File("./data/in/0.1.0/data.tree")
+    *     new File("./data/in/0.1.0/shape.tree")
+    *   )
+    * }
     * }}}
     */
   def dumpTaxTreeToFiles(
