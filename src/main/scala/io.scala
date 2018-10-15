@@ -1,10 +1,15 @@
 package ohnosequences.db.ncbitaxonomy
 
-import ohnosequences.forests.Tree
+import ohnosequences.forests.{Tree, io => treeIO, IOError => SerializationError}
+import treeIO.{Serialization, SerializationFormat}
 import scala.collection.mutable.{ArrayBuffer, HashMap}
-import ohnosequences.files.{read, Lines, File, Error => FileError}
+import ohnosequences.files.{read, write, Lines, File, Error => FileError}
 
 case object io {
+
+  import StringUtils._
+
+  val defaultFormat: SerializationFormat = SerializationFormat(";;;", "///")
 
   private final case class RankMap(
       root: Option[IdWithRank],
@@ -26,6 +31,12 @@ case object io {
 
     val nodes = parse.nodes.fromLines(nodesLines)
 
+    /*
+     Find root while looping through the nodes, where
+     the root is the node whose parent and id are the same
+
+     Main loop fills children map
+     */
     val root = nodes.foldLeft(Option.empty[IdWithRank]) {
       (maybeRoot, maybeNode) =>
         maybeNode match {
@@ -46,6 +57,7 @@ case object io {
         }
     }
 
+    // Transform ArrayBuffers to Arrays
     val childrenMap = children.map {
       case (parent, descendants) =>
         (parent, descendants.toArray)
@@ -69,11 +81,13 @@ case object io {
   }
 
   def generateTreeMap(nodesFile: File, namesFile: File): FileError + TreeMap = {
+    // Read nodes file
     val ranksResult = read.withLines(nodesFile) { lines =>
       generateRanksMap(lines)
     }
 
     ranksResult.flatMap { ranks =>
+      // Read names file
       val namesResult = read.withLines(namesFile) { lines =>
         generateNamesMap(lines)
       }
@@ -87,6 +101,9 @@ case object io {
         }
 
         val children =
+          // If root is not empty, build descendants
+          // Else, output empty children, since nothing is
+          // going to be built up having a missing root
           if (!root.isEmpty) {
             ranks.children.map {
               case (id, descendants) =>
@@ -109,10 +126,12 @@ case object io {
   }
 
   def treeMapToTaxTree(tree: TreeMap): TaxTree = {
-    val root        = tree.root
-    val children    = tree.children
+    val root     = tree.root
+    val children = tree.children
+    // Generator. Let's keep in mind that root of the tree is TaxID 1
     val init: TaxID = -1
 
+    // Define values and next function to apply unfold and build tree
     val values = { parent: TaxID =>
       if (parent == init) {
         root match {
@@ -150,5 +169,87 @@ case object io {
     generateTreeMap(nodesFile: File, namesFile: File).map { tree =>
       treeMapToTaxTree(tree)
     }
+
+  def dumpTaxTreeToFiles(
+      tree: TaxTree,
+      dataFile: File,
+      shapeFile: File
+  ): FileError + (File, File) = {
+
+    val format = defaultFormat
+
+    val serialization = treeIO.serializeTree(tree, format)
+    // data and shape are numberedLines, we need to map them to
+    // their first element to dump them to a file
+    val data  = serialization.data.map { _._1 }
+    val shape = serialization.shape.map { _._1 }
+
+    val dataResult = write.linesToFile(dataFile)(data)
+
+    dataResult.flatMap { dataFile =>
+      val shapeResult = write.linesToFile(shapeFile)(shape)
+      shapeResult.map { shapeFile =>
+        (dataFile, shapeFile)
+      }
+    }
+  }
+
+  def readTaxTreeFromFiles(
+      dataFile: File,
+      shapeFile: File
+  ): (FileError + SerializationError) + TaxTree = {
+    val taxNodeRegex = "TaxNode\\((\\d+),([a-zA-Z]*),(.*)\\)".r
+
+    val fromString: String => Option[TaxNode] = { str =>
+      // Return a TaxNode iff id, parent and name can be parsed
+      str match {
+        case taxNodeRegex(idStr, rankStr, name) =>
+          idStr.toIntOpt.flatMap { id =>
+            Rank(rankStr).map { rank =>
+              TaxNode(id, rank, name)
+            }
+          }
+        case _ => None
+      }
+    }
+
+    // Tries to deserialize the tree from the files
+    val treeResult = read.withLines(dataFile) { dataLines =>
+      val data = dataLines.zipWithIndex
+
+      read.withLines(shapeFile) { shapeLines =>
+        val shape = shapeLines.zipWithIndex
+
+        val serialization = Serialization(
+          data,
+          shape,
+          defaultFormat
+        )
+
+        val tree = treeIO.deserializeTree(
+          serialization,
+          fromString
+        )
+
+        tree
+      }
+    }
+
+    // If error ocurred in the data file retrieval, project to left
+    // If error ocurred in the shape file retrieval, it can be either
+    // a non-existent file or a SerializationError
+    treeResult.fold(
+      dataError => Left(Left(dataError)),
+      shapeResult =>
+        shapeResult.fold(
+          shapeError => Left(Left(shapeError)),
+          treeResult =>
+            treeResult.fold(
+              serializationError => Left(Right(serializationError)),
+              tree => Right(tree)
+          )
+      )
+    )
+  }
 
 }

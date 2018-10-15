@@ -13,6 +13,7 @@ project/plugins/project/
 # data folders
 data/in/
 data/out/
+data/tests/
 
 project/project/
 project/target/

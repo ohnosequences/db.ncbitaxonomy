@@ -33,5 +33,11 @@ package object ncbitaxonomy {
   def nodes(version: Version): S3Object =
     s3Prefix(version)("nodes.dmp")
 
+  def treeData(version: Version): S3Object =
+    s3Prefix(version)("data.tree")
+
+  def treeShape(version: Version): S3Object =
+    s3Prefix(version)("shape.tree")
+
   val hashingFunction: DigestFunction = DigestFunction.SHA512
 }
