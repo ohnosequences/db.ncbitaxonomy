@@ -9,8 +9,8 @@ case object io {
 
   import StringUtils._
 
-  /** Default format for serialization of the tree: 
-    * ;;; to separate siblings and /// to separate families 
+  /** Default format for serialization of the tree:
+    * ;;; to separate siblings and /// to separate families
     */
   val defaultFormat: SerializationFormat = SerializationFormat(";;;", "///")
 
@@ -87,16 +87,16 @@ case object io {
   }
 
   /** Generates a `TreeMap` to easily retrieve a `Tree` with unfold
-    * 
+    *
     * @note `root` is the node whose parent is itself, when parsing the file,
     * if such node is found, we will end up with Some(taxNode) in the root,
     * otherwise `root` will be None, and our `Tree` an `EmptyTree`
-    * 
+    *
     * @param nodesFile path to the `nodes.dmp` file from the NCBI taxonomy
     * @param namesFile path to the `names.dmp` file from the NCBI taxonomy
-    * 
+    *
     * @return Left(error) if some error ocurred when reading the lines from
-    * either `nodesFile` or `namesFile`, otherwise Right(treeMap) where 
+    * either `nodesFile` or `namesFile`, otherwise Right(treeMap) where
     * `treeMap` contains the necessary information to compose this method with
     * `treeMapToTaxTree` and get a `Tree` of `TaxNode`s
     */
@@ -147,11 +147,11 @@ case object io {
 
   /** Generates a `Tree` of `TaxNode`s (id + rank + scientific name) using
     * a `TreeMap` as input
-    * 
+    *
     * @param tree a `TreeMap`
-    * 
+    *
     * @return an unfolded tree starting at `tree.root`
-    * 
+    *
     */
   def treeMapToTaxTree(tree: TreeMap): TaxTree = {
     val root     = tree.root
@@ -195,19 +195,19 @@ case object io {
 
   /** Generates a `Tree` of `TaxNode`s (id + rank + scientific name) from a
     * `nodes.dmp` and a `names.dmp` NCBI files
-    * 
+    *
     * @param nodesFile `nodes.dmp` from the NCBI
     * @param namesFile `names.dmp` from the NCBI
-    * 
+    *
     * @return Left(error) if some error ocurred when reading the lines from
-    * either `nodesFile` or `namesFile`, otherwise Right(taxTree) where 
+    * either `nodesFile` or `namesFile`, otherwise Right(taxTree) where
     * `taxTree` is our `Tree` of `TaxNode`s
-    * 
+    *
     * @example
     * {{{
     * val nodesFile = new File("./data/in/0.1.0/nodes.dmp")
     * val namesFile = new File("./data/in/0.1.0/names.dmp")
-    * 
+    *
     * val tree = generateTaxTree(nodesFile, namesFile)
     * }}}
     */
@@ -219,23 +219,23 @@ case object io {
   /** Dumps a `Tree` of `TaxNode`s (id + rank + scientific name) to a pair
     * of files: `dataFile`, containing the `TaxNode`s, and `shapeFile`,
     * containing the structure of the tree.
-    * 
+    *
     * @param tree the tree we want to dump to files
     * @param dataFile file where we want to write the `TaxNode`s
     * @param shapeFile file where we want to write the structure of `tree`
-    * 
+    *
     * @return Left(error) if some error ocurred when writing to `dataFile`
-    * or `shapeFile`, otherwise Right(tuple) where tuple is the pair of 
+    * or `shapeFile`, otherwise Right(tuple) where tuple is the pair of
     * written files (`dataFile`, `shapeFile`)
-    * 
+    *
     * @example
     * {{{
     * val nodesFile = new File("./data/in/0.1.0/nodes.dmp")
     * val namesFile = new File("./data/in/0.1.0/names.dmp")
-    * 
+    *
     * generateTaxTree(nodesFile, namesFile).map { tree =>
     *   dumpTaxTreeToFiles(
-    *     tree, 
+    *     tree,
     *     new File("./data/in/0.1.0/data.tree")
     *     new File("./data/in/0.1.0/shape.tree")
     *   )
@@ -269,22 +269,22 @@ case object io {
   /** Reads a `Tree` of `TaxNode`s (id + rank + scientific name) from a pair
     * of files: `dataFile`, containing the `TaxNode`s, and `shapeFile`,
     * containing the structure of the tree.
-    * 
+    *
     * @param dataFile file where we want to read the `TaxNode`s from
     * @param shapeFile file where we want to read the structure of `tree` from
-    * 
+    *
     * @return Left(err) if some error ocurred when reading from `dataFile`
     * or `shapeFile`, otherwise Right(Left(ser)) if some `SerializationError`
     * ocurred (incorrect data or shape), otherwise Right(Right(tree)) where
     * tree is the `Tree` of `TaxNode`s read from `dataFile` and `shapeFile`
-    * 
+    *
     * @example
     * {{{
     * val dataFile  = new File("./data/in/0.1.0/data.tree")
     * val shapeFile = new File("./data/in/0.1.0/shape.tree")
-    * 
+    *
     * val treeResult = readTaxTreeFromFiles(dataFile, shapeFile)
-    * 
+    *
     * treeResult match {
     *   case Left(error: FileError) => println(error.msg)
     *   case Right(Left(error: SerializationError)) => println(error.msg)

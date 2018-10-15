@@ -36,7 +36,7 @@ case object Rank {
   case object NoRank          extends Rank
 
   /** Returns, if it is possible to parse it, a `Rank` from a `String`
-    * 
+    *
     * @param str the `String` we want to parse
     * @return `Some(rank)` if it was possible to parse the `Rank`, None
     * otherwise

@@ -1,6 +1,5 @@
 package ohnosequences.db.ncbitaxonomy
 
-
 /** Data structure to hold a node of the taxonomy:
   * an `id`, the `rank` of the taxonomy node and its scientific `name`
   */

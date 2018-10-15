@@ -48,16 +48,16 @@ object data {
     new File(s"./data/in/${version.name}")
 
   def namesLocalFile(version: Version): File =
-    dataDirectory(version).toPath.resolve("names.dmp").toFile
+    dataDirectory(version).toPath.resolve(namesFile).toFile
 
   def nodesLocalFile(version: Version): File =
-    dataDirectory(version).toPath.resolve("nodes.dmp").toFile
+    dataDirectory(version).toPath.resolve(nodesFile).toFile
 
   def treeDataLocalFile(version: Version): File =
-    dataDirectory(version).toPath.resolve("data.tree").toFile
+    dataDirectory(version).toPath.resolve(treeDataFile).toFile
 
   def treeShapeLocalFile(version: Version): File =
-    dataDirectory(version).toPath.resolve("shape.tree").toFile
+    dataDirectory(version).toPath.resolve(treeShapeFile).toFile
 
   // Random tax trees
   val taxTrees: Array[TaxTree] = {

@@ -25,11 +25,12 @@ case object parse {
 
     /** Separator between columns of the file */
     val fieldSeparator: Char = '|'
+
     /** End of each line */
-    val endOfRow: String     = "|"
+    val endOfRow: String = "|"
 
     /** Splits columns (or fields) of a line
-      * 
+      *
       * @param line a `String` representing the line of a [[File]]
       * @return an `Array` of `String`s
       */
@@ -43,11 +44,12 @@ case object parse {
 
   /** Methods to parse a `Node` */
   case object node {
+
     /** Just stores an empty `Node` */
     val empty: Option[Node] = Option.empty[Node]
 
     /** Parses a `Node`, if possible, from a `Row`
-      * 
+      *
       * @param fields an `Array` of `String`s
       * @return Some(node) if it was possible to parse all the necessary fields,
       * None otherwise
@@ -70,7 +72,7 @@ case object parse {
         empty
 
     /** Parses a `Node`, if possible, from a line
-      * 
+      *
       * @param line a `String` representing the line of a [[File]]
       * @return Some(node) if it was possible to parse all the necessary fields,
       * None otherwise
@@ -83,9 +85,9 @@ case object parse {
   case object nodes {
 
     /** Parses `Node`s, if possible, from lines of a file
-      * 
+      *
       * @param lines a `Iterator` over `String` representing the lines of a [[File]]
-      * @return Some(node) in a position if it was possible to parse all the 
+      * @return Some(node) in a position if it was possible to parse all the
       * necessary fields, None otherwise in that position
       */
     def fromLines(lines: Lines): Iterator[Option[Node]] =
@@ -95,13 +97,14 @@ case object parse {
 
   /** Methods to parse a `ScientificName` */
   case object name {
+
     /** Just stores an empty `Name` */
     val empty: Option[ScientificName] = Option.empty[ScientificName]
 
     /** Parses a `ScientificName`, if possible, from a `Row`
-      * 
+      *
       * @param fields an `Array` of `String`s
-      * @return Some(name) if it was possible to parse all the necessary fields and 
+      * @return Some(name) if it was possible to parse all the necessary fields and
       * it represents a `scientific name` indeed, None otherwise
       */
     def fromRow(fields: Row): Option[ScientificName] =
@@ -117,9 +120,9 @@ case object parse {
         empty
 
     /** Parses a `ScientificName`, if possible, from a line
-      * 
+      *
       * @param line of a [[File]]
-      * @return Some(name) if it was possible to parse all the necessary fields and 
+      * @return Some(name) if it was possible to parse all the necessary fields and
       * it represents a `scientific name` indeed, None otherwise
       */
     def fromLine(line: String): Option[ScientificName] =
@@ -130,7 +133,7 @@ case object parse {
   case object names {
 
     /** Parses all `ScientificName`s from a file
-      * 
+      *
       * @param lines, an `Iterator` over the lines of a [[File]]
       * @return an `Iterator` over `ScientificName`s, where all lines which
       * could not be parsed into a `ScientificName` were discarded
