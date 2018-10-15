@@ -197,7 +197,7 @@ case object io {
   def readTaxTreeFromFiles(
       dataFile: File,
       shapeFile: File
-  ): FileError + (SerializationError + TaxTree) = {
+  ): (FileError + SerializationError) + TaxTree = {
     val taxNodeRegex = "TaxNode\\((\\d+),([a-zA-Z]*),(.*)\\)".r
 
     val fromString: String => Option[TaxNode] = { str =>
@@ -238,7 +238,18 @@ case object io {
     // If error ocurred in the data file retrieval, project to left
     // If error ocurred in the shape file retrieval, it can be either
     // a non-existent file or a SerializationError
-    treeResult.fold(dataError => Left(dataError), shapeResult => shapeResult)
+    treeResult.fold(
+      dataError => Left(Left(dataError)),
+      shapeResult =>
+        shapeResult.fold(
+          shapeError => Left(Left(shapeError)),
+          treeResult =>
+            treeResult.fold(
+              serializationError => Left(Right(serializationError)),
+              tree => Right(tree)
+          )
+      )
+    )
   }
 
 }

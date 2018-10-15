@@ -28,14 +28,19 @@ package object test {
       case Left(error)   => fail(error.msg)
     }
 
-  private def failIfSerializatoinError[X]: SerializationError + X => X =
+  private def failIfFileOrSerializationError[X]
+    : (FileError + SerializationError) + X => X =
     _ match {
       case Right(result) => result
-      case Left(error)   => fail(error.msg)
+      case Left(error)   => fail(error.fold(_.msg, _.msg))
     }
 
   private val s3Client = AmazonS3ClientBuilder.defaultClient()
 
+  /*
+   Henceforth there are a bunch of wrappers to get the result of a function or fail
+   if some error arises
+   */
   private[test] def downloadFromS3(s3Obj: S3Object, file: File) =
     failIfRequestError {
       request.getCheckedFile(s3Client)(s3Obj, file)
@@ -101,10 +106,8 @@ package object test {
     }
 
   private[test] def readTreeFrom(dataFile: File, shapeFile: File) =
-    failIfSerializatoinError {
-      failIfFileError {
-        io.readTaxTreeFromFiles(dataFile, shapeFile)
-      }
+    failIfFileOrSerializationError {
+      io.readTaxTreeFromFiles(dataFile, shapeFile)
     }
 
   /**
