@@ -45,16 +45,16 @@ case object data {
     }
 
   val names: Version => S3Object =
-    s3Prefix(_)("names.dmp")
+    s3Prefix(_)(namesFile)
 
   def nodes: Version => S3Object =
-    s3Prefix(_)("nodes.dmp")
+    s3Prefix(_)(nodesFile)
 
   def treeData: Version => S3Object =
-    s3Prefix(_)("data.tree")
+    s3Prefix(_)(treeDataFile)
 
   def treeShape: Version => S3Object =
-    s3Prefix(_)("shape.tree")
+    s3Prefix(_)(treeShapeFile)
 
   val hashingFunction: DigestFunction = DigestFunction.SHA512
 }

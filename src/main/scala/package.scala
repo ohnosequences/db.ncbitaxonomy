@@ -8,4 +8,11 @@ package object ncbitaxonomy {
   type TaxID   = Int
   type TaxTree = Tree[TaxNode]
 
+  val treeDataFile = "data.tree"
+
+  val treeShapeFile = "shape.tree"
+
+  val namesFile = "names.dmp"
+
+  val nodesFile = "nodes.dmp"
 }
