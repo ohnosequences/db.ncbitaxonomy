@@ -9,7 +9,7 @@ case object io {
 
   import StringUtils._
 
-  val defaultFormat: SerializationFormat = SerializationFormat(";;;", "///")
+  val defaultFormat: SerializationFormat = SerializationFormat("╪", "┼")
 
   private final case class RankMap(
       root: Option[IdWithRank],
@@ -198,7 +198,7 @@ case object io {
       dataFile: File,
       shapeFile: File
   ): (FileError + SerializationError) + TaxTree = {
-    val taxNodeRegex = "TaxNode\\((\\d+),([a-zA-Z]*),(.*)\\)".r
+    val taxNodeRegex = "(\\d+),([a-zA-Z]*),(.*)".r
 
     val fromString: String => Option[TaxNode] = { str =>
       // Return a TaxNode iff id, parent and name can be parsed
