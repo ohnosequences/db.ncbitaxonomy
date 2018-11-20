@@ -12,8 +12,7 @@ import java.io.File
   * - Method to check whether all the files for a [[Version]] exist in S3.
   * - Wrappers for files utilities (uncompress, extract, download)
   */
-/*private[ncbitaxonomy]*/
-case object helpers {
+private[ncbitaxonomy] case object helpers {
 
   lazy val s3Client = AmazonS3ClientBuilder.standard().build()
 
@@ -130,4 +129,16 @@ case object helpers {
       directory.recursiveDeleteDirectory(folder).left.map(Error.FileError)
     else
       Right(false)
+
+  /** Downloads the `s3Obj` to `file` whenever `file` does not exist
+    * or its checksum is different from the `s3Obj` checksum
+    */
+  def getFileIfDifferent(s3Obj: S3Object, file: File) =
+    request
+      .getCheckedFileIfDifferent(s3Client)(s3Obj, file)
+      .left
+      .map { err =>
+        Error.S3Error(err)
+      }
+
 }

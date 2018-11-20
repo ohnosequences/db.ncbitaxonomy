@@ -2,15 +2,12 @@ package ohnosequences.db.ncbitaxonomy.test
 
 import scala.collection.mutable.HashSet
 import ohnosequences.db.ncbitaxonomy._
-import ohnosequences.db
-import ohnosequences.test.ReleaseOnlyTest
-import org.scalatest.DoNotDiscover
-import ohnosequences.forests.Tree
+import ohnosequences.forests.{EmptyTree, NonEmptyTree, Tree}
+import data._
 
-@DoNotDiscover
-class CheckFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
+class CheckFullTaxonomy extends NCBITaxonomyTest("CheckFullTaxonomy") {
 
-  test("Parse all names and access all data", ReleaseOnlyTest) {
+  test("Parse all names and access all data") {
 
     Version.all foreach { version =>
       val seen = new HashSet[TaxID]
@@ -32,7 +29,7 @@ class CheckFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
     }
   }
 
-  test("All nodes can be parsed for all versions", ReleaseOnlyTest) {
+  test("All nodes can be parsed for all versions") {
 
     Version.all foreach { version =>
       readLinesWith(getNodesFile(version)) { lines: Lines =>
@@ -45,7 +42,7 @@ class CheckFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
     }
   }
 
-  test("Check that there is a name for each node", ReleaseOnlyTest) {
+  test("Check that there is a name for each node") {
 
     Version.all.foreach { version =>
       readLinesWith(getNodesFile(version)) { nodeLines: Lines =>
@@ -71,7 +68,7 @@ class CheckFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
     }
   }
 
-  test("Ids are all positive for nodes", ReleaseOnlyTest) {
+  test("Ids are all positive for nodes") {
 
     Version.all foreach { version =>
       readLinesWith(getNodesFile(version)) { nodeLines =>
@@ -89,7 +86,7 @@ class CheckFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
 
   // Ensures we can turn data into a tree, although we should check that
   // number of nodes in the tree matches number of read nodes
-  test("There is no node with more than a parent", ReleaseOnlyTest) {
+  test("There is no node with more than a parent") {
 
     Version.all foreach { version =>
       val nonOrphan = new HashSet[TaxID]
@@ -106,11 +103,11 @@ class CheckFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
     }
   }
 
-  test("Generated tree is well formed", ReleaseOnlyTest) {
+  test("Generated tree is well formed") {
 
     Version.all foreach { version =>
-      val treeData  = getTreeDataFile(version)
-      val shapeData = getTreeShapeFile(version)
+      val treeData  = getTreeData(version)
+      val shapeData = getTreeShape(version)
 
       val tree = readTreeFrom(treeData, shapeData)
 
@@ -119,12 +116,11 @@ class CheckFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
   }
 
   test(
-    "Data and shape files can be parsed into a tree with proper number nodes",
-    ReleaseOnlyTest) {
+    "Data and shape files can be parsed into a tree with proper number nodes") {
 
     Version.all foreach { version =>
-      val treeData  = getTreeDataFile(version)
-      val shapeData = getTreeShapeFile(version)
+      val treeData  = getTreeData(version)
+      val shapeData = getTreeShape(version)
       val numNodes  = readLinesWith(getNodesFile(version)) { _.length }
 
       val tree = readTreeFrom(treeData, shapeData)
@@ -133,18 +129,27 @@ class CheckFullTaxonomy extends NCBITaxonomyTest("ParseFullTaxonomy") {
     }
   }
 
-  test("Nodes in the generated taxonomic tree are unique", ReleaseOnlyTest) {
+  test("Nodes in the generated taxonomic tree are unique") {
 
     Version.all foreach { version =>
-      val treeData  = getTreeDataFile(version)
-      val shapeData = getTreeShapeFile(version)
+      val treeData  = getTreeData(version)
+      val shapeData = getTreeShape(version)
       val numNodes  = readLinesWith(getNodesFile(version)) { _.length }
 
       // Project values of the tree to the TaxID only
       val tree = Tree.map(readTreeFrom(treeData, shapeData)) { _.id }
-      // Get number of unique nodes
-      val numUniqueNodes =
-        Tree.filterData[TaxID](tree, _ => true).toSet.size
+
+      val numUniqueNodes = tree match {
+        case tree: NonEmptyTree[TaxID] =>
+          // Get number of unique nodes
+          tree.allPositions
+            .map { pos =>
+              tree(pos)
+            }
+            .toSet
+            .size
+        case tree: EmptyTree[TaxID] => 0
+      }
 
       assert { numUniqueNodes == numNodes }
     }

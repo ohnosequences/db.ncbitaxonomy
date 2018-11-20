@@ -1,63 +1,43 @@
 package ohnosequences.db.ncbitaxonomy.test
 
-import ohnosequences.db.ncbitaxonomy._, io.defaultFormat
+import ohnosequences.db.ncbitaxonomy, ncbitaxonomy._, io.defaultFormat
 import ohnosequences.forests.{NonEmptyTree, random}
 import scala.collection.mutable.StringBuilder
 import java.io.File.createTempFile
 
 object data {
-  import Rank._
 
-  val numInstances: Int         = 100
-  val maxDepth: Int             = 10
+  def getNodesFile(version: Version): File =
+    getFileIfDifferent(
+      ncbitaxonomy.data.nodes(version),
+      ncbitaxonomy.data.local.nodes(version)
+    )
+
+  def getNamesFile(version: Version): File =
+    getFileIfDifferent(
+      ncbitaxonomy.data.names(version),
+      ncbitaxonomy.data.local.names(version)
+    )
+
+  def getTreeData(version: Version): File =
+    getFileIfDifferent(
+      ncbitaxonomy.data.treeData(version),
+      ncbitaxonomy.data.local.treeData(version)
+    )
+
+  def getTreeShape(version: Version): File =
+    getFileIfDifferent(
+      ncbitaxonomy.data.treeShape(version),
+      ncbitaxonomy.data.local.treeShape(version)
+    )
+
+  val numInstances: Int = 100
+
+  val maxDepth: Int = 10
+
   val maxSiblingsPerFamily: Int = 5
-  val allRanks: Array[Rank] = Array(
-    Superkingdom,
-    Kingdom,
-    Subkingdom,
-    Superphylum,
-    Phylum,
-    Subphylum,
-    Superclass,
-    Class,
-    Subclass,
-    Infraclass,
-    Cohort,
-    Superorder,
-    Order,
-    Suborder,
-    Infraorder,
-    Parvorder,
-    Superfamily,
-    Family,
-    Subfamily,
-    Tribe,
-    Subtribe,
-    Genus,
-    Subgenus,
-    SpeciesGroup,
-    SpeciesSubgroup,
-    Species,
-    Subspecies,
-    Varietas,
-    Forma,
-    NoRank
-  )
 
-  def dataDirectory(version: Version): File =
-    new File(s"./data/in/${version.name}")
-
-  def namesLocalFile(version: Version): File =
-    dataDirectory(version).toPath.resolve(namesFile).toFile
-
-  def nodesLocalFile(version: Version): File =
-    dataDirectory(version).toPath.resolve(nodesFile).toFile
-
-  def treeDataLocalFile(version: Version): File =
-    dataDirectory(version).toPath.resolve(treeDataFile).toFile
-
-  def treeShapeLocalFile(version: Version): File =
-    dataDirectory(version).toPath.resolve(treeShapeFile).toFile
+  val allRanks: Array[Rank] = Rank.all.toArray
 
   // Random tax trees
   val taxTrees: Array[TaxTree] = {
@@ -103,11 +83,15 @@ object data {
   }
 
   val dataTempFile: Array[File] = Array.tabulate(numInstances) { i =>
-    createTempFile(s"treeData-${i}", ".tmp")
+    val file = createTempFile(s"treeData-${i}", ".tmp")
+    file.deleteOnExit()
+    file
   }
 
   val shapeTempFile: Array[File] = Array.tabulate(numInstances) { i =>
-    createTempFile(s"treeShape-${i}", ".tmp")
+    val file = createTempFile(s"treeShape-${i}", ".tmp")
+    file.deleteOnExit()
+    file
   }
 
 }

@@ -35,6 +35,40 @@ case object Rank {
   case object Forma           extends Rank
   case object NoRank          extends Rank
 
+  /** All the possible ranks */
+  val all: Set[Rank] = Set(
+    Superkingdom,
+    Kingdom,
+    Subkingdom,
+    Superphylum,
+    Phylum,
+    Subphylum,
+    Superclass,
+    Class,
+    Subclass,
+    Infraclass,
+    Cohort,
+    Superorder,
+    Order,
+    Suborder,
+    Infraorder,
+    Parvorder,
+    Superfamily,
+    Family,
+    Subfamily,
+    Tribe,
+    Subtribe,
+    Genus,
+    Subgenus,
+    SpeciesGroup,
+    SpeciesSubgroup,
+    Species,
+    Subspecies,
+    Varietas,
+    Forma,
+    NoRank
+  )
+
   /** Returns, if it is possible to parse it, a `Rank` from a `String`
     *
     * @param str the `String` we want to parse
