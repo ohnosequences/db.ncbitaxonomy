@@ -10,28 +10,38 @@ case object io {
   import StringUtils._
 
   /** Default format for serialization of the tree:
-    * ;;; to separate siblings and /// to separate families
+    * ╪ to separate siblings and ┼ to separate families
     */
-  val defaultFormat: SerializationFormat = SerializationFormat(";;;", "///")
+  val defaultFormat: SerializationFormat = SerializationFormat("╪", "┼")
 
+  /** Structure to hold a tree of (TaxID, Rank), as a root and a 
+    * mapping of each nodes children TaxID -> children = Array[(TaxID, Rank)]
+    */
   private final case class RankMap(
       root: Option[IdWithRank],
       children: HashMap[TaxID, Array[IdWithRank]]
   )
 
+  /** Stores the name for each TaxID */
   private type NamesMap = HashMap[TaxID, String]
 
-  /** Structure to hold a root (`None` if there's no root) and children
-    * of each node of a `Tree`
+
+  /** Structure to hold a tree of TaxNodes, as a root and a mapping of each
+    * nodes children TaxID -> children = Array[TaxNode]
     */
   final case class TreeMap(
       root: Option[TaxNode],
       children: HashMap[TaxID, Array[TaxNode]]
   )
 
+  /** Stores a tuple (TaxID, Rank) */
   private final case class IdWithRank(id: TaxID, rank: Rank)
 
-  // Return a RankMap
+  /** Given the `nodes.dmp` file, as an iterator over its lines, 
+    * it maps it to a [[RankMap]]
+    * 
+    * @param nodesLines an iterator over the lines of `nodes.dmp`
+    */
   private def generateRanksMap(nodesLines: Lines): RankMap = {
     val children = new HashMap[TaxID, ArrayBuffer[IdWithRank]]
 
@@ -72,6 +82,11 @@ case object io {
     new RankMap(root, childrenMap)
   }
 
+  /** Given the `names.dmp` file, as an iterator over its lines,
+    * it maps it to a [[NamesMap]]
+    * 
+    * @param namesLines an iterator over the lines of `names.dmp`
+    */
   private def generateNamesMap(namesLines: Lines): NamesMap = {
     val result = new NamesMap
 
@@ -199,7 +214,7 @@ case object io {
     * @param nodesFile `nodes.dmp` from the NCBI
     * @param namesFile `names.dmp` from the NCBI
     *
-    * @return Left(error) if some error ocurred when reading the lines from
+    * @return Left(error) if some error arised reading the lines from
     * either `nodesFile` or `namesFile`, otherwise Right(taxTree) where
     * `taxTree` is our `Tree` of `TaxNode`s
     *
@@ -230,14 +245,14 @@ case object io {
     *
     * @example
     * {{{
-    * val nodesFile = new File("./data/in/0.1.0/nodes.dmp")
-    * val namesFile = new File("./data/in/0.1.0/names.dmp")
+    * val nodesFile = new File("./data/0.1.0/nodes.dmp")
+    * val namesFile = new File("./data/0.1.0/names.dmp")
     *
     * generateTaxTree(nodesFile, namesFile).map { tree =>
     *   dumpTaxTreeToFiles(
     *     tree,
-    *     new File("./data/in/0.1.0/data.tree")
-    *     new File("./data/in/0.1.0/shape.tree")
+    *     new File("./data/0.1.0/data.tree")
+    *     new File("./data/0.1.0/shape.tree")
     *   )
     * }
     * }}}
@@ -280,8 +295,8 @@ case object io {
     *
     * @example
     * {{{
-    * val dataFile  = new File("./data/in/0.1.0/data.tree")
-    * val shapeFile = new File("./data/in/0.1.0/shape.tree")
+    * val dataFile  = new File("./data/0.1.0/data.tree")
+    * val shapeFile = new File("./data/0.1.0/shape.tree")
     *
     * val treeResult = readTaxTreeFromFiles(dataFile, shapeFile)
     *
@@ -296,7 +311,7 @@ case object io {
       dataFile: File,
       shapeFile: File
   ): (FileError + SerializationError) + TaxTree = {
-    val taxNodeRegex = "TaxNode\\((\\d+),([a-zA-Z]*),(.*)\\)".r
+    val taxNodeRegex = "(\\d+),([a-zA-Z]*),(.*)".r
 
     val fromString: String => Option[TaxNode] = { str =>
       // Return a TaxNode iff id, parent and name can be parsed
