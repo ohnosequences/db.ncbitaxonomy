@@ -2,6 +2,7 @@ package ohnosequences.db.ncbitaxonomy
 
 import ohnosequences.files.Lines
 
+/** Auxiliary class to ensure safe parsing from `String`s to `Int`s */
 // https://coderwall.com/p/lcxjzw/safely-parsing-strings-to-numbers-in-scala
 object StringUtils {
   implicit class StringImprovements(val s: String) {
@@ -12,17 +13,27 @@ object StringUtils {
   }
 }
 
+/** Object that contains necessary methods to parse `nodes.dmp` and `names.dmp` files */
 case object parse {
   type Field = String
   type Row   = Array[Field]
 
   import StringUtils._
 
+  /** Method to parse rows into a `Row` (an `Array` of `String`) */
   case object row {
 
+    /** Separator between columns of the file */
     val fieldSeparator: Char = '|'
-    val endOfRow: String     = "|"
 
+    /** End of each line */
+    val endOfRow: String = "|"
+
+    /** Splits columns (or fields) of a line
+      *
+      * @param line a `String` representing the line of a [[File]]
+      * @return an `Array` of `String`s
+      */
     def fromLine(line: String): Row =
       line
         .stripSuffix(endOfRow)
@@ -31,9 +42,18 @@ case object parse {
         .toArray[String]
   }
 
+  /** Methods to parse a `Node` */
   case object node {
+
+    /** Just stores an empty `Node` */
     val empty: Option[Node] = Option.empty[Node]
 
+    /** Parses a `Node`, if possible, from a `Row`
+      *
+      * @param fields an `Array` of `String`s
+      * @return Some(node) if it was possible to parse all the necessary fields,
+      * None otherwise
+      */
     def fromRow(fields: Row): Option[Node] =
       // We need at least 3 fields to be able to parse something
       if (fields.length >= 3) {
@@ -51,20 +71,42 @@ case object parse {
       } else
         empty
 
+    /** Parses a `Node`, if possible, from a line
+      *
+      * @param line a `String` representing the line of a [[File]]
+      * @return Some(node) if it was possible to parse all the necessary fields,
+      * None otherwise
+      */
     def fromLine(line: String): Option[Node] =
       fromRow((row.fromLine(line)): @inline): @inline
   }
 
+  /** Methods to parse `Node`s */
   case object nodes {
 
+    /** Parses `Node`s, if possible, from lines of a file
+      *
+      * @param lines a `Iterator` over `String` representing the lines of a [[File]]
+      * @return Some(node) in a position if it was possible to parse all the
+      * necessary fields, None otherwise in that position
+      */
     def fromLines(lines: Lines): Iterator[Option[Node]] =
       lines
         .map { node.fromLine(_): @inline }
   }
 
+  /** Methods to parse a `ScientificName` */
   case object name {
+
+    /** Just stores an empty `Name` */
     val empty: Option[ScientificName] = Option.empty[ScientificName]
 
+    /** Parses a `ScientificName`, if possible, from a `Row`
+      *
+      * @param fields an `Array` of `String`s
+      * @return Some(name) if it was possible to parse all the necessary fields and
+      * it represents a `scientific name` indeed, None otherwise
+      */
     def fromRow(fields: Row): Option[ScientificName] =
       // We need at least 4 fields to be able to parse something
       if (fields.length >= 4 && fields(3) == "scientific name") {
@@ -77,12 +119,25 @@ case object parse {
       } else
         empty
 
+    /** Parses a `ScientificName`, if possible, from a line
+      *
+      * @param line of a [[File]]
+      * @return Some(name) if it was possible to parse all the necessary fields and
+      * it represents a `scientific name` indeed, None otherwise
+      */
     def fromLine(line: String): Option[ScientificName] =
       fromRow((row.fromLine(line)): @inline): @inline
   }
 
+  /** Methods to parse all `ScientificName`s from a [[File]] */
   case object names {
 
+    /** Parses all `ScientificName`s from a file
+      *
+      * @param lines, an `Iterator` over the lines of a [[File]]
+      * @return an `Iterator` over `ScientificName`s, where all lines which
+      * could not be parsed into a `ScientificName` were discarded
+      */
     def fromLines(lines: Lines): Iterator[ScientificName] =
       lines
         .map { name.fromLine(_): @inline }

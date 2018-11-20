@@ -1,5 +1,7 @@
 package ohnosequences.db
 
+import ohnosequences.s3._ // s3Object, s3Folder
+
 import ohnosequences.forests._
 
 package object ncbitaxonomy {
@@ -8,11 +10,11 @@ package object ncbitaxonomy {
   type TaxID   = Int
   type TaxTree = Tree[TaxNode]
 
-  val treeDataFile = "data.tree"
+  val treeDataFile: String = "data.tree"
 
-  val treeShapeFile = "shape.tree"
+  val treeShapeFile: String = "shape.tree"
 
-  val namesFile = "names.dmp"
+  val namesFile: String = "names.dmp"
 
-  val nodesFile = "nodes.dmp"
+  val nodesFile: String = "nodes.dmp"
 }
