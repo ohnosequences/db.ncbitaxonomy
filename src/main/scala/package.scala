@@ -1,7 +1,5 @@
 package ohnosequences.db
 
-import ohnosequences.s3._ // s3Object, s3Folder
-
 import ohnosequences.forests._
 
 package object ncbitaxonomy {

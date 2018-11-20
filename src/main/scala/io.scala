@@ -1,9 +1,10 @@
 package ohnosequences.db.ncbitaxonomy
 
-import ohnosequences.forests.{Tree, io => treeIO, IOError => SerializationError}
+import ohnosequences.forests.{Tree, io => treeIO}
 import treeIO.{Serialization, SerializationFormat}
 import scala.collection.mutable.{ArrayBuffer, HashMap}
-import ohnosequences.files.{read, write, Lines, File, Error => FileError}
+import ohnosequences.files.{Lines, read, write}
+import java.io.File
 
 case object io {
 
@@ -14,7 +15,7 @@ case object io {
     */
   val defaultFormat: SerializationFormat = SerializationFormat("╪", "┼")
 
-  /** Structure to hold a tree of (TaxID, Rank), as a root and a 
+  /** Structure to hold a tree of (TaxID, Rank), as a root and a
     * mapping of each nodes children TaxID -> children = Array[(TaxID, Rank)]
     */
   private final case class RankMap(
@@ -24,7 +25,6 @@ case object io {
 
   /** Stores the name for each TaxID */
   private type NamesMap = HashMap[TaxID, String]
-
 
   /** Structure to hold a tree of TaxNodes, as a root and a mapping of each
     * nodes children TaxID -> children = Array[TaxNode]
@@ -37,9 +37,9 @@ case object io {
   /** Stores a tuple (TaxID, Rank) */
   private final case class IdWithRank(id: TaxID, rank: Rank)
 
-  /** Given the `nodes.dmp` file, as an iterator over its lines, 
+  /** Given the `nodes.dmp` file, as an iterator over its lines,
     * it maps it to a [[RankMap]]
-    * 
+    *
     * @param nodesLines an iterator over the lines of `nodes.dmp`
     */
   private def generateRanksMap(nodesLines: Lines): RankMap = {
@@ -84,7 +84,7 @@ case object io {
 
   /** Given the `names.dmp` file, as an iterator over its lines,
     * it maps it to a [[NamesMap]]
-    * 
+    *
     * @param namesLines an iterator over the lines of `names.dmp`
     */
   private def generateNamesMap(namesLines: Lines): NamesMap = {
@@ -115,49 +115,52 @@ case object io {
     * `treeMap` contains the necessary information to compose this method with
     * `treeMapToTaxTree` and get a `Tree` of `TaxNode`s
     */
-  def generateTreeMap(nodesFile: File, namesFile: File): FileError + TreeMap = {
+  def generateTreeMap(nodesFile: File, namesFile: File): Error + TreeMap = {
     // Read nodes file
     val ranksResult = read.withLines(nodesFile) { lines =>
       generateRanksMap(lines)
     }
 
-    ranksResult.flatMap { ranks =>
-      // Read names file
-      val namesResult = read.withLines(namesFile) { lines =>
-        generateNamesMap(lines)
-      }
-
-      namesResult.map { names =>
-        val root = ranks.root.flatMap {
-          case IdWithRank(id, rank) =>
-            names.get(id).map { name =>
-              TaxNode(id, rank, name)
-            }
+    ranksResult
+      .flatMap { ranks =>
+        // Read names file
+        val namesResult = read.withLines(namesFile) { lines =>
+          generateNamesMap(lines)
         }
 
-        val children =
-          // If root is not empty, build descendants
-          // Else, output empty children, since nothing is
-          // going to be built up having a missing root
-          if (!root.isEmpty) {
-            ranks.children.map {
-              case (id, descendants) =>
-                val newDescendants = descendants.map {
-                  case IdWithRank(id, rank) =>
-                    names.get(id).map { name =>
-                      TaxNode(id, rank, name)
-                    }
-                }.flatten
-
-                (id, newDescendants)
-            }
-          } else {
-            HashMap.empty[TaxID, Array[TaxNode]]
+        namesResult.map { names =>
+          val root = ranks.root.flatMap {
+            case IdWithRank(id, rank) =>
+              names.get(id).map { name =>
+                TaxNode(id, rank, name)
+              }
           }
 
-        new TreeMap(root, children)
+          val children =
+            // If root is not empty, build descendants
+            // Else, output empty children, since nothing is
+            // going to be built up having a missing root
+            if (!root.isEmpty) {
+              ranks.children.map {
+                case (id, descendants) =>
+                  val newDescendants = descendants.map {
+                    case IdWithRank(id, rank) =>
+                      names.get(id).map { name =>
+                        TaxNode(id, rank, name)
+                      }
+                  }.flatten
+
+                  (id, newDescendants)
+              }
+            } else {
+              HashMap.empty[TaxID, Array[TaxNode]]
+            }
+
+          new TreeMap(root, children)
+        }
       }
-    }
+      .left
+      .map(Error.FileError)
   }
 
   /** Generates a `Tree` of `TaxNode`s (id + rank + scientific name) using
@@ -226,7 +229,7 @@ case object io {
     * val tree = generateTaxTree(nodesFile, namesFile)
     * }}}
     */
-  def generateTaxTree(nodesFile: File, namesFile: File): FileError + TaxTree =
+  def generateTaxTree(nodesFile: File, namesFile: File): Error + TaxTree =
     generateTreeMap(nodesFile: File, namesFile: File).map { tree =>
       treeMapToTaxTree(tree)
     }
@@ -261,7 +264,7 @@ case object io {
       tree: TaxTree,
       dataFile: File,
       shapeFile: File
-  ): FileError + (File, File) = {
+  ): Error + (File, File) = {
 
     val format = defaultFormat
 
@@ -273,12 +276,15 @@ case object io {
 
     val dataResult = write.linesToFile(dataFile)(data)
 
-    dataResult.flatMap { dataFile =>
-      val shapeResult = write.linesToFile(shapeFile)(shape)
-      shapeResult.map { shapeFile =>
-        (dataFile, shapeFile)
+    dataResult
+      .flatMap { dataFile =>
+        val shapeResult = write.linesToFile(shapeFile)(shape)
+        shapeResult.map { shapeFile =>
+          (dataFile, shapeFile)
+        }
       }
-    }
+      .left
+      .map(Error.FileError)
   }
 
   /** Reads a `Tree` of `TaxNode`s (id + rank + scientific name) from a pair
@@ -307,10 +313,7 @@ case object io {
     * }
     * }}}
     */
-  def readTaxTreeFromFiles(
-      dataFile: File,
-      shapeFile: File
-  ): (FileError + SerializationError) + TaxTree = {
+  def readTaxTreeFromFiles(dataFile: File, shapeFile: File): Error + TaxTree = {
     val taxNodeRegex = "(\\d+),([a-zA-Z]*),(.*)".r
 
     val fromString: String => Option[TaxNode] = { str =>
@@ -352,13 +355,13 @@ case object io {
     // If error ocurred in the shape file retrieval, it can be either
     // a non-existent file or a SerializationError
     treeResult.fold(
-      dataError => Left(Left(dataError)),
+      dataError => Left(Error.FileError(dataError)),
       shapeResult =>
         shapeResult.fold(
-          shapeError => Left(Left(shapeError)),
+          shapeError => Left(Error.FileError(shapeError)),
           treeResult =>
             treeResult.fold(
-              serializationError => Left(Right(serializationError)),
+              serError => Left(Error.SerializationError(serError)),
               tree => Right(tree)
           )
       )

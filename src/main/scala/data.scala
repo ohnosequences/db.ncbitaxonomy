@@ -3,6 +3,7 @@ package ohnosequences.db.ncbitaxonomy
 import ohnosequences.s3._
 import ohnosequences.files.digest.DigestFunction
 import java.net.URL
+import java.io.File
 
 sealed abstract class Version(val name: String) {
   override final def toString: String = name
@@ -10,7 +11,9 @@ sealed abstract class Version(val name: String) {
 
 object Version {
 
-  val all: Set[Version] = Set(v0_0_1, v0_1_0)
+  val all: Set[Version] = Set(v0_0_1, v0_1_0, v0_2_0)
+
+  val latest: Version = v0_2_0
 
   case object v0_0_1 extends Version("0.0.1")
   case object v0_1_0 extends Version("0.1.0")
@@ -20,8 +23,7 @@ object Version {
 case object data {
 
   /** Folder where we are going to dump data locally */
-  val localFolder: Version => File = version => new File("./data/${version}")
-
+  val localFolder: Version => File = version => new File(s"./data/${version}")
 
   case object remote {
     val sourceFile: URL = new URL(
@@ -61,24 +63,27 @@ case object data {
     s3Prefix(_)(treeShapeFile)
 
   val everything: Version => Set[S3Object] =
-    Set(names(_), nodes(_), treeData(_), treeShape(_))
+    v => Set(names(v), nodes(v), treeData(v), treeShape(v))
 
   val hashingFunction: DigestFunction = DigestFunction.SHA512
 
   case object local {
     val names: Version => File =
-      new File(localFolder(_), namesFile)
+      version => new File(localFolder(version), namesFile)
 
     val nodes: Version => File =
-      new File(localFolder(_), nodesFile)
+      version => new File(localFolder(version), nodesFile)
 
     val treeData: Version => File =
-      new File(localFolder(_), treeDataFile)
+      version => new File(localFolder(version), treeDataFile)
 
     val treeShape: Version => File =
-      new File(localFolder(_), treeShapeFile)
+      version => new File(localFolder(version), treeShapeFile)
 
     val taxDump: Version => File =
-      new File(localFolder(_), "taxdump.tar.gz")
+      version => new File(localFolder(version), "taxdump.tar.gz")
+
+    val tarFile: Version => File =
+      version => new File(localFolder(version), "taxdump.tar")
   }
 }
