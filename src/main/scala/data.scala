@@ -19,6 +19,10 @@ object Version {
 
 case object data {
 
+  /** Folder where we are going to dump data locally */
+  val localFolder: Version => File = version => new File("./data/${version}")
+
+
   case object remote {
     val sourceFile: URL = new URL(
       "ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/taxdump.tar.gz")
@@ -47,14 +51,34 @@ case object data {
   val names: Version => S3Object =
     s3Prefix(_)(namesFile)
 
-  def nodes: Version => S3Object =
+  val nodes: Version => S3Object =
     s3Prefix(_)(nodesFile)
 
-  def treeData: Version => S3Object =
+  val treeData: Version => S3Object =
     s3Prefix(_)(treeDataFile)
 
-  def treeShape: Version => S3Object =
+  val treeShape: Version => S3Object =
     s3Prefix(_)(treeShapeFile)
 
+  val everything: Version => Set[S3Object] =
+    Set(names(_), nodes(_), treeData(_), treeShape(_))
+
   val hashingFunction: DigestFunction = DigestFunction.SHA512
+
+  case object local {
+    val names: Version => File =
+      new File(localFolder(_), namesFile)
+
+    val nodes: Version => File =
+      new File(localFolder(_), nodesFile)
+
+    val treeData: Version => File =
+      new File(localFolder(_), treeDataFile)
+
+    val treeShape: Version => File =
+      new File(localFolder(_), treeShapeFile)
+
+    val taxDump: Version => File =
+      new File(localFolder(_), "taxdump.tar.gz")
+  }
 }

@@ -9,23 +9,36 @@ case object io {
 
   import StringUtils._
 
+  /** Default format for the serialization */
   val defaultFormat: SerializationFormat = SerializationFormat("╪", "┼")
 
+  /** Structure to hold a tree of (TaxID, Rank), as a root and a 
+    * mapping of each nodes children TaxID -> children = Array[(TaxID, Rank)]
+    */
   private final case class RankMap(
       root: Option[IdWithRank],
       children: HashMap[TaxID, Array[IdWithRank]]
   )
 
+  /** Stores the name for each TaxID */
   private type NamesMap = HashMap[TaxID, String]
 
+    /** Structure to hold a tree of TaxNodes, as a root and a mapping of each
+      * nodes children TaxID -> children = Array[TaxNode]
+    */
   final case class TreeMap(
       root: Option[TaxNode],
       children: HashMap[TaxID, Array[TaxNode]]
   )
 
+  /** Stores a tuple (TaxID, Rank) */
   private final case class IdWithRank(id: TaxID, rank: Rank)
 
-  // Return a RankMap
+  /** Given the `nodes.dmp` file, as an iterator over its lines, 
+    * it maps it to a [[RankMap]]
+    * 
+    * @param nodesLines an iterator over the lines of `nodes.dmp`
+    */
   private def generateRanksMap(nodesLines: Lines): RankMap = {
     val children = new HashMap[TaxID, ArrayBuffer[IdWithRank]]
 
@@ -66,6 +79,11 @@ case object io {
     new RankMap(root, childrenMap)
   }
 
+  /** Given the `names.dmp` file, as an iterator over its lines,
+    * it maps it to a [[NamesMap]]
+    * 
+    * @param namesLines an iterator over the lines of `names.dmp`
+    */
   private def generateNamesMap(namesLines: Lines): NamesMap = {
     val result = new NamesMap
 
@@ -80,6 +98,15 @@ case object io {
     result
   }
 
+  /** Given the `nodes.dmp` and `names.dmp` files, it reads them into a
+    * [[TreeMap]]
+    * 
+    * @param nodesFile `nodes.dmp`
+    * @param namesFile `names.dmp`
+    * 
+    * @return a Left(error) if some error arised reading `nodesFile` or `namesFile`.
+    * Otherwise a Right(map), where `map` is a valid [[TreeMap]]
+    */
   def generateTreeMap(nodesFile: File, namesFile: File): FileError + TreeMap = {
     // Read nodes file
     val ranksResult = read.withLines(nodesFile) { lines =>
@@ -125,6 +152,12 @@ case object io {
     }
   }
 
+  /** Given a [[TreeMap]] it unfolds a valid [[TaxTree]] from there
+    * 
+    * @param tree a [[TreeMap]]
+    * 
+    * @return a [[TaxTree]], which can be empty
+    */
   def treeMapToTaxTree(tree: TreeMap): TaxTree = {
     val root     = tree.root
     val children = tree.children
@@ -165,11 +198,28 @@ case object io {
     Tree.unfold(values, next)(init)
   }
 
+  /** Given the `nodes.dmp` and `names.dmp` files, it reads them into a tree
+    * 
+    * @param nodesFile `nodes.dmp`
+    * @param namesFile `names.dmp`
+    * 
+    * @return a Left(error) if some error arised reading `nodesFile` or `namesFile`.
+    * Otherwise a Right(tree), where `tree` is a valid [[TaxTree]]
+    */
   def generateTaxTree(nodesFile: File, namesFile: File): FileError + TaxTree =
     generateTreeMap(nodesFile: File, namesFile: File).map { tree =>
       treeMapToTaxTree(tree)
     }
 
+  /** Serializes a tree into a file for its data and another one for its shape
+    * 
+    * @param dataFile the file that will hold the data for the tree
+    * @param shapeFile the file that will hold the shape for the tree
+    * 
+    * @return a Left(error) if some error arised writing the `dataFile` or
+    * `shapeFile`. Otherwise a Right(files) where files is a tuple
+    * (dataFile, shapeFile)
+    */
   def dumpTaxTreeToFiles(
       tree: TaxTree,
       dataFile: File,
@@ -194,6 +244,16 @@ case object io {
     }
   }
 
+
+  /** Given a serialized tree (in files), it reads it into a tree data structure
+    * 
+    * @param dataFile the serialized data file
+    * @param shapeFile the serialized shape file
+    * 
+    * @return a Left(error) if some error arised reading `nodesFile` or `namesFile`
+    * (error is a Left) or there is some problem with the serialization (error is a
+    * Right). Otherwise, a Right(tree), where `tree` is a valid [[TaxTree]]
+    */
   def readTaxTreeFromFiles(
       dataFile: File,
       shapeFile: File
