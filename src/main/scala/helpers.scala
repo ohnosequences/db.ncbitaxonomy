@@ -38,7 +38,7 @@ private[ncbitaxonomy] case object helpers {
         Error.S3Error(err)
       }
 
-  /** Returns true when object does not exists or communication with S3
+  /** Returns true when object does exist or communication with S3
     * cannot be established */
   def objectExists(s3Obj: S3Object) =
     request
