@@ -1,0 +1,47 @@
+# 0.2.0
+
+Second release of the package:
+
+* [New release scheme][new-release-scheme] adopted.
+* Method to mirror a new version: `release.mirrorNewVersion` with integrity checks regarding the download and upload of files to S3. In each mirroring, we download the NCBI taxonomy raw files `nodes.dmp` and `names.dmp` and we turn them into a serialized tree: files `data.tree` and `shape.tree`. Those four files are the collection of mirrored elements.
+* Methods to gather S3 addresses for a version: `data.names`, `data.nodes`, `data.treeData` and `data.treeShape`.
+
+## Data Pointers
+
+The `db.ncbitaxonomy.data.{nodes, names, treeData, treeShape}` methods return for a `Version` an S3 address for the `nodes.dmp`, `names.dmp`, `data.tree` and `shape.tree` files for the NCBI taxonomic tree, respectively. The two last ones are necessary to deserialize it:
+
+For each `Version` addresses are:
+```
+s3://resources.ohnosequences.com/db/ncbitaxonomy/unstable/<version>/nodes.dmp
+s3://resources.ohnosequences.com/db/ncbitaxonomy/unstable/<version>/names.dmp
+s3://resources.ohnosequences.com/db/ncbitaxonomy/unstable/<version>/data.tree
+s3://resources.ohnosequences.com/db/ncbitaxonomy/unstable/<version>/shape.tree
+```
+
+## Release Code
+
+The method that should be used to release a new version is `ohnosequences.db.ncbitaxonomy.release.mirrorNewVersion`, which has to be fed a `Version` object. That method: 
+* Cleans and creates the [`localFolder`][localFolder] structure to hold the data for the files.
+* Downloads the file `taxdump.tar.gz` from the NCBI ftp server.
+* Extracts it.
+* Generates a tree from the `nodes.dmp` and `names.dmp` files, present in the `.tar.gz` file.
+* Serializes the tree into a `data.tree` file and a `shape.tree` file.
+* Uploads `nodes.dmp`, `names.dmp`, `data.tree` and `shape.tree` to the aforementioned S3 addresses.
+
+## Release Process
+
+The process to add a new version and release the data is as follows:
+
+1. Add a new `object` that extends `Version` in [`src/main/scala/data.scala`](https://github.com/ohnosequences/db.ncbitaxonomy/blob/v0.2.0/src/main/scala/data.scala); e.g., `case object v0_2_0 extends Version("0.2.0")`.
+2. Release the data through the method [`release.mirrorNewVersion`](https://github.com/ohnosequences/db.ncbitaxonomy/blob/v0.2.0/src/main/scala/release.scala#L104); e.g., through an `sbt console`:
+```scala
+scala> import ohnosequences.db.ncbitaxonomy._
+scala> release.mirrorNewVersion(Version.v0_2_0)
+```
+3. Prepare a new release of the repository by writing release notes in the corresponding file in [`notes`](https://github.com/ohnosequences/db.ncbitaxonomy/blob/v0.2.0/notes); e.g. in `notes/0.2.0.markdown`
+4. Make the release of the repository, that checks that all declared versions of the data exist and are correct. This is done through the `sbt` `release` task; e.g., with `sbt release minor`.
+
+
+[new-release-scheme]: https://github.com/ohnosequences/16s/blob/master/dev/log.md#new-release-process
+[localFolder]: https://github.com/ohnosequences/db.ncbitaxonomy/blob/v0.2.0/src/main/scala/data.scala#L24
+[db.ncbitaxonomy]: https://github.com/ohnosequences/db.ncbitaxonomy
