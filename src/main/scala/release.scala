@@ -7,7 +7,7 @@ import data._
 
 case object release {
 
-  /** Downloads, extract and uncompress the file from [[remote.sourceFile]],
+  /** Downloads, extracts and uncompresses the file from [[remote.sourceFile]],
     * which is stored in the NCBI ftp server
     *
     * @param version the [[Version]] we want to get the files for. This parameter
