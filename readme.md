@@ -15,6 +15,17 @@ s3://resources.ohnosequences.com/db/ncbitaxonomy/unstable/<version>/shape.tree
 
 where `<version>` matches one of the [releases of this repository][db.ncbitaxonomy-releases]; these are easily accessible as instances of the `Version` type.
 
+## Installation
+
+Just add
+
+```scala
+resolvers += "Era7 maven releases" at "https://s3-eu-west-1.amazonaws.com/releases.era7.com"
+libraryDependencies += "ohnosequences" %% "db.ncbitaxonomy" % "x.y.z"
+```
+
+to your `sbt` dependencies, where `x.y.z` is the version of the [latest release][latest-release].
+
 ## Data Source
 
 All input data is under `ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/`. We are mostly interested in `taxdump*` files, for which there's a [readme][taxdump-readme]. We need to get the contents of [taxdump.tar.gz][taxdump-archive]; after extracing we should see
@@ -161,3 +172,4 @@ io.readTaxTreeFromFiles(dataFile, shapeFile).map { tree =>
 [website-guide]: https://www.ncbi.nlm.nih.gov/guide/taxonomy/
 [db.ncbitaxonomy-releases]: https://github.com/ohnosequences/db.ncbitaxonomy/releases
 [sbt-buildinfo]: https://github.com/sbt/sbt-buildinfo
+[latest-release]: https://github.com/ohnosequences/db.ncbitaxonomy/releases/latest
