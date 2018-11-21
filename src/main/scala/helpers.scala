@@ -18,7 +18,7 @@ private[ncbitaxonomy] case object helpers {
 
   val partSize5MiB = 5 * 1024 * 1024
 
-  /** Downloads the specified `s3Obj` to a give `file` */
+  /** Downloads the specified `s3Obj` to a given `file` */
   def download(s3Obj: S3Object, file: File) =
     request
       .getCheckedFile(s3Client)(s3Obj, file)
