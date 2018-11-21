@@ -11,12 +11,10 @@ sealed abstract class Version(val name: String) {
 
 object Version {
 
-  val all: Set[Version] = Set(v0_0_1, v0_1_0, v0_2_0)
+  val all: Set[Version] = Set(v0_2_0)
 
   val latest: Version = v0_2_0
 
-  case object v0_0_1 extends Version("0.0.1")
-  case object v0_1_0 extends Version("0.1.0")
   case object v0_2_0 extends Version("0.2.0")
 }
 
