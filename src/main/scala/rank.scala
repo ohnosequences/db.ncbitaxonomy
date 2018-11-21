@@ -2,6 +2,7 @@ package ohnosequences.db.ncbitaxonomy
 
 sealed abstract class Rank
 
+/** Holds all the possible `Rank`s for a taxonomic node */
 case object Rank {
   case object Superkingdom    extends Rank
   case object Kingdom         extends Rank
@@ -34,6 +35,46 @@ case object Rank {
   case object Forma           extends Rank
   case object NoRank          extends Rank
 
+  /** All the possible ranks */
+  val all: Set[Rank] = Set(
+    Superkingdom,
+    Kingdom,
+    Subkingdom,
+    Superphylum,
+    Phylum,
+    Subphylum,
+    Superclass,
+    Class,
+    Subclass,
+    Infraclass,
+    Cohort,
+    Superorder,
+    Order,
+    Suborder,
+    Infraorder,
+    Parvorder,
+    Superfamily,
+    Family,
+    Subfamily,
+    Tribe,
+    Subtribe,
+    Genus,
+    Subgenus,
+    SpeciesGroup,
+    SpeciesSubgroup,
+    Species,
+    Subspecies,
+    Varietas,
+    Forma,
+    NoRank
+  )
+
+  /** Returns, if it is possible to parse it, a `Rank` from a `String`
+    *
+    * @param str the `String` we want to parse
+    * @return `Some(rank)` if it was possible to parse the `Rank`, None
+    * otherwise
+    */
   def apply(str: String): Option[Rank] =
     // Normalize str: remove all whitespaces, make it lower case
     str.replaceAll("\\s", "").toLowerCase match {
