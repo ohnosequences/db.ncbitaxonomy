@@ -31,7 +31,7 @@ case object parse {
 
     /** Splits columns (or fields) of a line
       *
-      * @param line a `String` representing the line of a [[File]]
+      * @param line a `String` representing the line of a file
       * @return an `Array` of `String`s
       */
     def fromLine(line: String): Row =
@@ -73,7 +73,7 @@ case object parse {
 
     /** Parses a `Node`, if possible, from a line
       *
-      * @param line a `String` representing the line of a [[File]]
+      * @param line a `String` representing the line of a file
       * @return Some(node) if it was possible to parse all the necessary fields,
       * None otherwise
       */
@@ -86,7 +86,7 @@ case object parse {
 
     /** Parses `Node`s, if possible, from lines of a file
       *
-      * @param lines a `Iterator` over `String` representing the lines of a [[File]]
+      * @param lines a `Iterator` over `String` representing the lines of a file
       * @return Some(node) in a position if it was possible to parse all the
       * necessary fields, None otherwise in that position
       */
@@ -121,7 +121,7 @@ case object parse {
 
     /** Parses a `ScientificName`, if possible, from a line
       *
-      * @param line of a [[File]]
+      * @param line of a file
       * @return Some(name) if it was possible to parse all the necessary fields and
       * it represents a `scientific name` indeed, None otherwise
       */
@@ -129,12 +129,12 @@ case object parse {
       fromRow((row.fromLine(line)): @inline): @inline
   }
 
-  /** Methods to parse all `ScientificName`s from a [[File]] */
+  /** Methods to parse all `ScientificName`s from a file */
   case object names {
 
     /** Parses all `ScientificName`s from a file
       *
-      * @param lines, an `Iterator` over the lines of a [[File]]
+      * @param lines, an `Iterator` over the lines of a file
       * @return an `Iterator` over `ScientificName`s, where all lines which
       * could not be parsed into a `ScientificName` were discarded
       */

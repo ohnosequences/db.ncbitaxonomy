@@ -307,9 +307,8 @@ case object io {
     * val treeResult = readTaxTreeFromFiles(dataFile, shapeFile)
     *
     * treeResult match {
-    *   case Left(error: FileError) => println(error.msg)
-    *   case Right(Left(error: SerializationError)) => println(error.msg)
-    *   case Right(Right(tree)) => // do stuff with the tree
+    *   case Left(error) => println(error.msg)
+    *   case Right(tree) => // do stuff with the tree
     * }
     * }}}
     */
