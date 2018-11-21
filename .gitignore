@@ -27,5 +27,6 @@ project/target/
 .vscode*
 /.gtm/
 
-# Test data
+# data folders
 ncbi-data/
+data/
