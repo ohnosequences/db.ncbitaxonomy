@@ -1,0 +1,7 @@
+# 0.2.0
+
+This bugfix release adds an ordered list of ranks in
+
+```
+ohnosequences.db.ncbitaxonomy.Rank.orderedList
+```
