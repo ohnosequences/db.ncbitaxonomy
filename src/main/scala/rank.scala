@@ -35,8 +35,9 @@ case object Rank {
   case object Forma           extends Rank
   case object NoRank          extends Rank
 
-  /** All the possible ranks */
-  val all: Set[Rank] = Set(
+  /** A list of all the meaningful ranks (all but NoRank), ordered by
+  increasing specificity **/
+  val orderedList: List[Rank] = List[Rank](
     Superkingdom,
     Kingdom,
     Subkingdom,
@@ -65,9 +66,11 @@ case object Rank {
     Species,
     Subspecies,
     Varietas,
-    Forma,
-    NoRank
+    Forma
   )
+
+  /** All the possible ranks */
+  val all: Set[Rank] = orderedList.toSet + NoRank
 
   /** Returns, if it is possible to parse it, a `Rank` from a `String`
     *
